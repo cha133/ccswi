@@ -12,7 +12,7 @@ import { register as registerRename } from "./commands/rename";
 
 program
   .name("ccswi")
-  .version("1.1.4", "-v, --version")
+  .version("1.1.5", "-v, --version")
   .description("Lightweight CLI to switch Claude Code settings.json profiles");
 
 // 注册所有命令
