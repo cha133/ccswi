@@ -16,7 +16,13 @@ export function loadProfiles(): ProfilesStore {
   }
 
   const content = readFileSync(path, "utf-8");
-  const data = parseTOML(content) as ProfilesStore;
+  let data: ProfilesStore;
+  try {
+    data = parseTOML(content) as ProfilesStore;
+  } catch {
+    console.warn("⚠ ~/.ccswi/profiles.toml 格式损坏，将按空配置处理");
+    return structuredClone(EMPTY_STORE);
+  }
 
   // 基本校验
   if (!data || typeof data !== "object" || !data.profiles) {

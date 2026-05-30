@@ -41,7 +41,12 @@ export function loadCommonConfig(): ClaudeSettings {
     return extractAndSaveCommonConfig();
   }
   const content = readFileSync(path, "utf-8");
-  return JSON.parse(content) as ClaudeSettings;
+  try {
+    return JSON.parse(content) as ClaudeSettings;
+  } catch {
+    console.warn("⚠ ~/.ccswi/common.json 格式损坏，将重新从 settings.json 提取");
+    return extractAndSaveCommonConfig();
+  }
 }
 
 /**

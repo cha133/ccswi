@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 import type { Profile, ClaudeSettings } from "../types";
 import { claudeSettingsPath } from "../utils/paths";
 
@@ -12,7 +13,12 @@ export function readSettings(): ClaudeSettings {
     return {};
   }
   const content = readFileSync(path, "utf-8");
-  return JSON.parse(content) as ClaudeSettings;
+  try {
+    return JSON.parse(content) as ClaudeSettings;
+  } catch {
+    console.warn("⚠ ~/.claude/settings.json 格式损坏，将按空配置处理");
+    return {};
+  }
 }
 
 /**
@@ -20,6 +26,7 @@ export function readSettings(): ClaudeSettings {
  */
 export function writeSettings(settings: ClaudeSettings): void {
   const path = claudeSettingsPath();
+  mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify(settings, null, 2) + "\n", "utf-8");
 }
 
