@@ -2,32 +2,35 @@ import pc from "picocolors";
 import type { Profile, ProfilesStore } from "../types";
 import { getProfileEntries } from "../core/config";
 
+// Windows Terminal 对 Unicode 字符宽度渲染不一致，需要额外空格
+const GAP = process.platform === "win32" ? "  " : " ";
+
 /**
  * 打印成功信息
  */
 export function success(msg: string): void {
-  console.log(`${pc.green("✔")}  ${msg}`);
+  console.log(`${pc.green("✔")}${GAP}${msg}`);
 }
 
 /**
  * 打印错误信息
  */
 export function error(msg: string): void {
-  console.error(`${pc.red("✖")}  ${msg}`);
+  console.error(`${pc.red("✖")}${GAP}${msg}`);
 }
 
 /**
  * 打印普通信息
  */
 export function info(msg: string): void {
-  console.log(`${pc.cyan("ℹ")}  ${msg}`);
+  console.log(`${pc.cyan("ℹ")}${GAP}${msg}`);
 }
 
 /**
  * 打印警告信息
  */
 export function warn(msg: string): void {
-  console.log(`${pc.yellow("⚠")}  ${msg}`);
+  console.log(`${pc.yellow("⚠")}${GAP}${msg}`);
 }
 
 /**
