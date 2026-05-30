@@ -15,7 +15,7 @@ bun add -g ccswi
 ccswi save [name]
 
 # Create a new profile interactively
-ccswi new
+ccswi create
 
 # List all profiles
 ccswi ls

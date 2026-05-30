@@ -36,7 +36,7 @@ export function warn(msg: string): void {
 export function formatProfileTable(store: ProfilesStore): void {
   const entries = getProfileEntries(store);
   if (entries.length === 0) {
-    info("No profiles yet. Run `ccswi new` to create one.");
+    info("No profiles yet. Run `ccswi create` to create one.");
     return;
   }
 

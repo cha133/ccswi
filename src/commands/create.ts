@@ -7,7 +7,7 @@ import { success, error } from "../ui/format";
 
 export function register(program: Command): void {
   program
-    .command("new")
+    .command("create")
     .description("Create a new profile interactively")
     .action(async () => {
       const store = loadProfiles();
