@@ -43,7 +43,7 @@ export function formatProfileTable(store: ProfilesStore): void {
     return;
   }
 
-  console.log(pc.bold("  Profiles:"));
+  console.log(pc.bold("Profiles:"));
 
   entries.forEach(([key, profile], i) => {
     const isActive = store.active === key;
@@ -51,7 +51,7 @@ export function formatProfileTable(store: ProfilesStore): void {
     const index = pc.dim(`${i + 1}.`);
     const name = isActive ? pc.green(pc.bold(profile.name)) : profile.name;
     const vendor = profile.vendor ? `  ${pc.dim(`(${profile.vendor})`)}` : "";
-    console.log(`  ${marker} ${index} ${name}${vendor}`);
+    console.log(`${marker} ${index} ${name}${vendor}`);
   });
 }
 
@@ -60,16 +60,16 @@ export function formatProfileTable(store: ProfilesStore): void {
  */
 export function formatProfileDetail(profile: Profile, index?: number): void {
   if (index !== undefined) {
-    console.log(pc.bold(`  Profile #${index + 1}: ${profile.name}`));
+    console.log(pc.bold(`Profile #${index + 1}: ${profile.name}`));
   } else {
-    console.log(pc.bold(`  Profile: ${profile.name}`));
+    console.log(pc.bold(`Profile: ${profile.name}`));
   }
-  console.log(`  ${pc.dim("vendor:")}    ${profile.vendor || pc.dim("(none)")}`);
-  console.log(`  ${pc.dim("endpoint:")}  ${profile.endpoint || pc.dim("(none)")}`);
-  console.log(`  ${pc.dim("token:")}     ${profile.token ? maskToken(profile.token) : pc.dim("(none)")}`);
-  console.log(`  ${pc.dim("opus:")}      ${formatModelWith1m(profile.opus, profile.opus_1m)}`);
-  console.log(`  ${pc.dim("sonnet:")}    ${formatModelWith1m(profile.sonnet, profile.sonnet_1m)}`);
-  console.log(`  ${pc.dim("haiku:")}     ${profile.haiku || pc.dim("(none)")}`);
+  console.log(`${pc.dim("vendor:")}    ${profile.vendor || pc.dim("(none)")}`);
+  console.log(`${pc.dim("endpoint:")}  ${profile.endpoint || pc.dim("(none)")}`);
+  console.log(`${pc.dim("token:")}     ${profile.token ? maskToken(profile.token) : pc.dim("(none)")}`);
+  console.log(`${pc.dim("opus:")}      ${formatModelWith1m(profile.opus, profile.opus_1m)}`);
+  console.log(`${pc.dim("sonnet:")}    ${formatModelWith1m(profile.sonnet, profile.sonnet_1m)}`);
+  console.log(`${pc.dim("haiku:")}     ${profile.haiku || pc.dim("(none)")}`);
 }
 
 /**
