@@ -78,8 +78,8 @@ async function promptModel(
     );
   }
 
-  const CUSTOM = "__ccsw_custom__";
-  const REUSE = "__ccsw_reuse__";
+  const CUSTOM = "__ccswi_custom__";
+  const REUSE = "__ccswi_reuse__";
 
   const topOptions: { value: string; label: string }[] = [];
 
