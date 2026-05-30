@@ -12,11 +12,15 @@ export function register(program: Command): void {
     .action(async () => {
       const store = loadProfiles();
 
-      // 如果没有 default profile，从当前 settings.json 提取 provider 字段创建一个
-      if (!store.profiles["default"]) {
+      // 初次使用：profiles 完全为空时，从当前 settings.json 备份为 default
+      const entries = Object.keys(store.profiles);
+      if (entries.length === 0) {
         const defaultProfile = extractProfileFromSettings("default");
-        addProfile(store, defaultProfile);
-        saveProfiles(store);
+        // 只有当 settings.json 有实际 provider 内容时才保存
+        if (defaultProfile.endpoint || defaultProfile.token || defaultProfile.opus || defaultProfile.sonnet || defaultProfile.haiku) {
+          addProfile(store, defaultProfile);
+          saveProfiles(store);
+        }
       }
 
       try {
