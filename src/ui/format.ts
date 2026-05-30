@@ -6,28 +6,28 @@ import { getProfileEntries } from "../core/config";
  * 打印成功信息
  */
 export function success(msg: string): void {
-  console.log(`${pc.green("✔")} ${msg}`);
+  console.log(`${pc.green("✔")}  ${msg}`);
 }
 
 /**
  * 打印错误信息
  */
 export function error(msg: string): void {
-  console.error(`${pc.red("✖")} ${msg}`);
+  console.error(`${pc.red("✖")}  ${msg}`);
 }
 
 /**
  * 打印普通信息
  */
 export function info(msg: string): void {
-  console.log(`${pc.cyan("ℹ")} ${msg}`);
+  console.log(`${pc.cyan("ℹ")}  ${msg}`);
 }
 
 /**
  * 打印警告信息
  */
 export function warn(msg: string): void {
-  console.log(`${pc.yellow("⚠")} ${msg}`);
+  console.log(`${pc.yellow("⚠")}  ${msg}`);
 }
 
 /**
