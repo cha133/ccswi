@@ -9,10 +9,11 @@ import { register as registerRm } from "./commands/rm";
 import { register as registerSet } from "./commands/set";
 import { register as registerSave } from "./commands/save";
 import { register as registerRename } from "./commands/rename";
+import pkg from "../package.json" with { type: "json" };
 
 program
   .name("ccswi")
-  .version("1.1.5", "-v, --version")
+  .version(pkg.version, "-v, --version")
   .description("Lightweight CLI to switch Claude Code settings.json profiles");
 
 // 注册所有命令
