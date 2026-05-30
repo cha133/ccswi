@@ -14,8 +14,8 @@ bun add -g ccswi
 # Save current settings.json as a profile
 ccswi save [name]
 
-# Create a new profile interactively
-ccswi create
+# Add a new profile interactively
+ccswi add
 
 # List all profiles
 ccswi ls

@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { program } from "commander";
 import { register as registerLs } from "./commands/ls";
-import { register as registerCreate } from "./commands/create";
+import { register as registerAdd } from "./commands/add";
 import { register as registerUse } from "./commands/use";
 import { register as registerShow } from "./commands/show";
 import { register as registerEdit } from "./commands/edit";
@@ -18,7 +18,7 @@ program
 // 注册所有命令
 registerSave(program);
 registerLs(program);
-registerCreate(program);
+registerAdd(program);
 registerUse(program);
 registerShow(program);
 registerEdit(program);

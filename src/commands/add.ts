@@ -7,8 +7,8 @@ import { success, error } from "../ui/format";
 
 export function register(program: Command): void {
   program
-    .command("create")
-    .description("Create a new profile interactively")
+    .command("add")
+    .description("Add a new profile interactively")
     .action(async () => {
       const store = loadProfiles();
 
@@ -29,7 +29,7 @@ export function register(program: Command): void {
         // 切换到新 profile
         switchToProfile(profile);
 
-        success(`Profile "${profile.name}" created and activated.`);
+        success(`Profile "${profile.name}" added and activated.`);
       } catch (err) {
         error(String(err));
         process.exit(1);
