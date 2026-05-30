@@ -1,48 +1,48 @@
-# ccsw
+# ccswi
 
 Lightweight CLI to switch [Claude Code](https://claude.ai/download) `~/.claude/settings.json` profiles.
 
 ## Install
 
 ```bash
-bun add -g ccsw
+bun add -g ccswi
 ```
 
 ## Usage
 
 ```bash
 # Save current settings.json as a profile
-ccsw save [name]
+ccswi save [name]
 
 # Create a new profile interactively
-ccsw new
+ccswi new
 
 # List all profiles
-ccsw ls
+ccswi ls
 
 # Switch to a profile
-ccsw use <name|index>
+ccswi use <name|index>
 
 # Show profile details
-ccsw show [name|index]
+ccswi show [name|index]
 
 # Edit a profile
-ccsw edit <name|index>
+ccswi edit <name|index>
 
 # Rename a profile
-ccsw rename <old> <new>
+ccswi rename <old> <new>
 
 # Delete a profile
-ccsw rm <name|index>
+ccswi rm <name|index>
 
 # Modify common config options
-ccsw set disable-updater
-ccsw set use-pwsh
+ccswi set disable-updater
+ccswi set use-pwsh
 ```
 
 ## Profiles
 
-Profiles are stored in `~/.ccsw/profiles.toml`. Each profile contains:
+Profiles are stored in `~/.ccswi/profiles.toml`. Each profile contains:
 
 - **vendor** — Provider preset name (optional)
 - **endpoint** — `ANTHROPIC_BASE_URL`

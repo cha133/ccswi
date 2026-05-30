@@ -1,10 +1,10 @@
 {
-  "name": "ccsw",
-  "version": "0.1.0",
+  "name": "ccswi",
+  "version": "1.0.1",
   "description": "Lightweight CLI to switch Claude Code settings.json profiles",
   "type": "module",
   "bin": {
-    "ccsw": "bin/ccsw.js"
+    "ccswi": "bin/ccsw.js"
   },
   "files": [
     "bin/",

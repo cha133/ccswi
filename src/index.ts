@@ -11,8 +11,8 @@ import { register as registerSave } from "./commands/save";
 import { register as registerRename } from "./commands/rename";
 
 program
-  .name("ccsw")
-  .version("0.1.0")
+  .name("ccswi")
+  .version("1.0.1")
   .description("Lightweight CLI to switch Claude Code settings.json profiles");
 
 // 注册所有命令

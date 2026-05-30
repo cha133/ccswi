@@ -1,12 +1,12 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { parseTOML, stringifyTOML } from "confbox";
 import type { ProfilesStore, Profile } from "../types";
-import { profilesTomlPath, ensureCcswDir } from "../utils/paths";
+import { profilesTomlPath, ensureCcswiDir } from "../utils/paths";
 
 const EMPTY_STORE: ProfilesStore = { active: null, profiles: {} };
 
 /**
- * 从 ~/.ccsw/profiles.toml 加载所有 profile
+ * 从 ~/.ccswi/profiles.toml 加载所有 profile
  * 如果文件不存在，返回空 store
  */
 export function loadProfiles(): ProfilesStore {
@@ -30,10 +30,10 @@ export function loadProfiles(): ProfilesStore {
 }
 
 /**
- * 保存 profiles 到 ~/.ccsw/profiles.toml
+ * 保存 profiles 到 ~/.ccswi/profiles.toml
  */
 export function saveProfiles(store: ProfilesStore): void {
-  ensureCcswDir();
+  ensureCcswiDir();
   const content = stringifyTOML(store);
   writeFileSync(profilesTomlPath(), content, "utf-8");
 }

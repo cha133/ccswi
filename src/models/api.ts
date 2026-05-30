@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { modelsCachePath, ensureCcswDir } from "../utils/paths";
+import { modelsCachePath, ensureCcswiDir } from "../utils/paths";
 
 const OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -69,7 +69,7 @@ export async function getModelNames(): Promise<string[]> {
   const models = await fetchModelNames();
 
   // 保存缓存
-  ensureCcswDir();
+  ensureCcswiDir();
   const cacheData: CacheData = {
     fetchedAt: Date.now(),
     models,

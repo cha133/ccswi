@@ -31,12 +31,12 @@ export function warn(msg: string): void {
 }
 
 /**
- * 格式化 profile 列表（用于 ccsw ls）
+ * 格式化 profile 列表（用于 ccswi ls）
  */
 export function formatProfileTable(store: ProfilesStore): void {
   const entries = getProfileEntries(store);
   if (entries.length === 0) {
-    info("No profiles yet. Run `ccsw new` to create one.");
+    info("No profiles yet. Run `ccswi new` to create one.");
     return;
   }
 
@@ -53,7 +53,7 @@ export function formatProfileTable(store: ProfilesStore): void {
 }
 
 /**
- * 格式化单个 profile 详情（用于 ccsw show）
+ * 格式化单个 profile 详情（用于 ccswi show）
  */
 export function formatProfileDetail(profile: Profile, index?: number): void {
   if (index !== undefined) {
