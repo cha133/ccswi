@@ -12,19 +12,21 @@ export function register(program: Command): void {
     .action(async () => {
       const store = loadProfiles();
 
-      // 初次使用：profiles 完全为空时，从当前 settings.json 备份为 default
+      // 初次使用：profiles 完全为空时，检查是否需要备份当前 settings.json 为 default
       const entries = Object.keys(store.profiles);
-      if (entries.length === 0) {
-        const defaultProfile = extractProfileFromSettings("default");
-        // 只有当 settings.json 有实际 provider 内容时才保存
-        if (defaultProfile.endpoint || defaultProfile.token || defaultProfile.opus || defaultProfile.sonnet || defaultProfile.haiku) {
-          addProfile(store, defaultProfile);
-          saveProfiles(store);
-        }
-      }
+      const needsDefaultBackup = entries.length === 0;
 
       try {
+        // 先执行交互流程，如果用户取消则不会保存任何东西
         const profile = await promptNewProfile(store);
+
+        // 交互成功后才保存 default 备份（如果有的话）
+        if (needsDefaultBackup) {
+          const defaultProfile = extractProfileFromSettings("default");
+          if (defaultProfile.endpoint || defaultProfile.token || defaultProfile.opus || defaultProfile.sonnet || defaultProfile.haiku) {
+            addProfile(store, defaultProfile);
+          }
+        }
 
         addProfile(store, profile);
         setActive(store, profile.name);

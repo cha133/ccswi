@@ -1,10 +1,9 @@
 import type { Command } from "commander";
-import { loadProfiles, saveProfiles, removeProfile } from "../core/config";
-import { switchToProfileAndUpdateActive } from "../core/switch";
+import { loadProfiles, saveProfiles, removeProfile, setActive } from "../core/config";
+import { switchToProfile } from "../core/switch";
 import { resolveProfileRef } from "../utils/fuzzy";
 import { promptConfirmDelete } from "../ui/prompts";
 import { success, error, warn } from "../ui/format";
-import { createEmptyProfile } from "../types";
 
 export function register(program: Command): void {
   program
@@ -23,24 +22,29 @@ export function register(program: Command): void {
         }
 
         removeProfile(store, key);
-        saveProfiles(store);
 
-        // 如果删的是 active，自动切回 default
+        // 如果删的是 active，需要切换到其他 profile 或清空 active
         if (isActive) {
-          if (store.profiles["default"]) {
-            switchToProfileAndUpdateActive(store.profiles["default"]!);
+          const entries = Object.entries(store.profiles);
+          if (entries.length === 0) {
+            // 没有任何 profile 了，清空 active（和初始状态一致）
+            store.active = null;
+            warn("No profiles left. Active cleared.");
+          } else if (store.profiles["default"]) {
+            // 优先切到 default
+            setActive(store, "default");
+            switchToProfile(store.profiles["default"]!);
             warn("Switched to default profile.");
           } else {
-            // 没有 default，创建一个空的
-            const emptyDefault = createEmptyProfile("default");
-            store.profiles["default"] = emptyDefault;
-            store.active = "default";
-            saveProfiles(store);
-            switchToProfileAndUpdateActive(emptyDefault);
-            warn("Created and switched to empty default profile.");
+            // 没有 default，切到列表第一个
+            const [firstKey, firstProfile] = entries[0]!;
+            setActive(store, firstKey);
+            switchToProfile(firstProfile);
+            warn(`Switched to "${firstProfile.name}".`);
           }
         }
 
+        saveProfiles(store);
         success(`Profile "${profile.name}" removed.`);
       } catch (err) {
         error(String(err));

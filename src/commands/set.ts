@@ -3,7 +3,6 @@ import { setCommonEnv } from "../core/common-config";
 import { loadProfiles, getActiveProfile } from "../core/config";
 import { switchToProfile } from "../core/switch";
 import { success, error, warn } from "../ui/format";
-import { createEmptyProfile } from "../types";
 
 export function register(program: Command): void {
   const setCmd = program
