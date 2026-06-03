@@ -4,7 +4,7 @@
   "description": "Lightweight CLI to switch Claude Code settings.json profiles",
   "type": "module",
   "bin": {
-    "ccswi": "bin/ccsw.js"
+    "ccswi": "bin/ccswi.js"
   },
   "files": [
     "bin/",
