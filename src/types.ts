@@ -3,6 +3,7 @@ export interface ProviderPreset {
   name: string;
   endpoint: string | null; // ANTHROPIC_BASE_URL，null 表示官方（不需要 endpoint）
   websiteUrl: string;
+  modelsUrl?: string; // 自定义模型列表端点（可选），如 "https://api.deepseek.com/models"
 }
 
 /** 单个配置 profile */

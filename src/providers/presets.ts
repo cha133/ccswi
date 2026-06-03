@@ -5,7 +5,7 @@ export const providerPresets: ProviderPreset[] = [
   { name: "Claude Official", endpoint: null, websiteUrl: "https://www.anthropic.com/claude-code" },
   { name: "Shengsuanyun", endpoint: "https://router.shengsuanyun.com/api", websiteUrl: "https://www.shengsuanyun.com/?from=CH_4HHXMRYF" },
   { name: "PatewayAI", endpoint: "https://api.pateway.ai", websiteUrl: "https://pateway.ai" },
-  { name: "火山 Agentplan", endpoint: "https://ark.cn-beijing.volces.com/api/coding", websiteUrl: "https://www.volcengine.com/activity/agentplan" },
+  { name: "Ark Agent Plan", endpoint: "https://ark.cn-beijing.volces.com/api/plan", websiteUrl: "https://www.volcengine.com/activity/agentplan" },
   { name: "BytePlus", endpoint: "https://ark.ap-southeast.bytepluses.com/api/coding", websiteUrl: "https://www.byteplus.com/en/product/modelark" },
   { name: "DouBaoSeed", endpoint: "https://ark.cn-beijing.volces.com/api/compatible", websiteUrl: "https://console.volcengine.com/ark" },
   { name: "Gemini Native", endpoint: "https://generativelanguage.googleapis.com", websiteUrl: "https://ai.google.dev/gemini-api" },
@@ -75,9 +75,16 @@ export function getVendorChoices(): ProviderPreset[] {
 }
 
 /**
- * 根据供应商名生成 profile 名称
- * 如 "Xiaomi MiMo Token Plan (China)" → "xiaomi mimo token plan (china)"
+ * 根据供应商名生成 kebab-case profile 名称
+ * 如 "Xiaomi MiMo Token Plan (China)" → "xiaomi-mimo-token-plan-china"
+ *    "火山 Agentplan"                 → "agentplan"
+ *    "APIKEY.FUN"                     → "apikey-fun"
  */
 export function generateProfileName(vendorName: string): string {
-  return vendorName.toLowerCase().trim();
+  return vendorName
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")  // 去掉非 ASCII、括号、点等
+    .replace(/[\s]+/g, "-")         // 空格 → 连字符
+    .replace(/-+/g, "-")            // 合并连续连字符
+    .replace(/^-|-$/g, "");         // 去首尾连字符
 }

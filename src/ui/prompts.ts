@@ -1,7 +1,7 @@
 import * as p from "@clack/prompts";
 import type { Profile, ProfilesStore, ProviderPreset } from "../types";
 import { getVendorChoices, generateProfileName } from "../providers/presets";
-import { getAllModelNames } from "../models/search";
+import { setProviderContext, getAllModelNames } from "../models/api";
 import { fuzzyScore } from "../utils/fuzzy";
 
 /**
@@ -17,6 +17,7 @@ function checkCancel<T>(value: T | symbol): T {
 
 /**
  * 预加载模型列表（带 spinner）
+ * 优先从供应商端点获取，失败则 fallback 到 OpenRouter
  * 返回模型名数组，失败则返回 null
  */
 async function loadModels(): Promise<string[] | null> {
@@ -175,6 +176,10 @@ export async function promptNewProfile(
       placeholder: isNoVendor
         ? "https://api.example.com/anthropic"
         : "Press Enter to use default",
+      validate: (value: string | undefined) => {
+        if (isNoVendor && !value?.trim()) return "Endpoint URL is required.";
+        return undefined;
+      },
     }),
   );
 
@@ -182,10 +187,19 @@ export async function promptNewProfile(
   const token = checkCancel(
     await p.password({
       message: "API Key / Token (ANTHROPIC_AUTH_TOKEN):",
+      validate: (value: string | undefined) => {
+        if (!value?.trim()) return "API Key is required.";
+        return undefined;
+      },
     }),
   );
 
-  // 5. 预加载模型列表（一次性加载，后面复用）
+  // 5. 设置供应商上下文 & 预加载模型列表
+  setProviderContext({
+    endpoint: isNoVendor ? undefined : endpoint.trim() || undefined,
+    modelsUrl: vendor.modelsUrl,
+    token: token?.trim() || undefined,
+  });
   const models = await loadModels();
 
   // 6. Opus 模型
