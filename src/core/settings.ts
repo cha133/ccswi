@@ -67,8 +67,8 @@ export function buildSettingsFromProfile(
   }
   if (profile.opus) {
     const opusModel = apply1m(profile.opus, profile.opus_1m);
-    env.ANTHROPIC_DEFAULT_OPUS_MODEL = opusModel;
     env.ANTHROPIC_MODEL = opusModel;
+    env.ANTHROPIC_DEFAULT_OPUS_MODEL = opusModel;
   }
   if (profile.sonnet) {
     env.ANTHROPIC_DEFAULT_SONNET_MODEL = apply1m(profile.sonnet, profile.sonnet_1m);
