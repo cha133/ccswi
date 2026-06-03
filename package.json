@@ -26,9 +26,10 @@
     "cli"
   ],
   "license": "MIT",
+  "author": "cha133",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/momo1037/ccswi.git"
+    "url": "git+https://github.com/cha133/ccswi.git"
   },
   "dependencies": {
     "@clack/prompts": "^1.5.0",
