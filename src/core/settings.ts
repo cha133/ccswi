@@ -71,9 +71,8 @@ export function buildSettingsFromProfile(
     env.ANTHROPIC_DEFAULT_OPUS_MODEL = mainModel;
   }
   if (profile.fast) {
-    const fastModel = apply1m(profile.fast, profile.fast_1m);
-    env.ANTHROPIC_DEFAULT_SONNET_MODEL = fastModel;
-    env.ANTHROPIC_DEFAULT_HAIKU_MODEL = fastModel;
+    env.ANTHROPIC_DEFAULT_SONNET_MODEL = apply1m(profile.fast, profile.fast_1m);
+    env.ANTHROPIC_DEFAULT_HAIKU_MODEL = profile.fast; // haiku 不支持 1m
   }
 
   return settings;
