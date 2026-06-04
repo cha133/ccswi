@@ -6,13 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Run CLI in dev mode (no build step — Bun executes TypeScript directly)
-bun run src/index.ts
+bun run dev
 
 # Install dependencies
 bun install
-
-# Publish to npm
-bun run publish
 ```
 
 There are no tests, linter, or build scripts configured. The CLI runs directly via Bun with `#!/usr/bin/env bun` shebang in `bin/ccswi.js`.
