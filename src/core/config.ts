@@ -3,6 +3,47 @@ import { parseTOML, stringifyTOML } from "confbox";
 import type { ProfilesStore, Profile } from "../types";
 import { profilesTomlPath, ensureCcswiDir } from "../utils/paths";
 
+/**
+ * 检测并迁移旧格式的 profile（opus/sonnet/haiku → main/fast）
+ * 返回 true 表示发生了迁移，需要回写文件
+ */
+function migrateOldProfiles(store: ProfilesStore): boolean {
+  let migrated = false;
+  for (const [key, raw] of Object.entries(store.profiles)) {
+    const p = raw as unknown as Record<string, unknown>;
+    // 检测旧字段：存在 opus/sonnet/haiku 字段
+    if ("opus" in p || "sonnet" in p || "haiku" in p) {
+      const opus = (p.opus as string) ?? "";
+      const opus1m = (p.opus_1m as boolean) ?? false;
+      const sonnet = (p.sonnet as string) ?? "";
+      const sonnet1m = (p.sonnet_1m as boolean) ?? false;
+      const haiku = (p.haiku as string) ?? "";
+
+      // 主模型 = opus
+      p.main = opus;
+      p.main_1m = opus1m;
+      // 快速模型：优先取 sonnet（如果和 opus 不同），否则取 haiku
+      if (sonnet && sonnet !== opus) {
+        p.fast = sonnet;
+        p.fast_1m = sonnet1m;
+      } else {
+        p.fast = haiku;
+        p.fast_1m = false;
+      }
+
+      // 删除旧字段
+      delete p.opus;
+      delete p.opus_1m;
+      delete p.sonnet;
+      delete p.sonnet_1m;
+      delete p.haiku;
+
+      migrated = true;
+    }
+  }
+  return migrated;
+}
+
 const EMPTY_STORE: ProfilesStore = { active: null, profiles: {} };
 
 /**
@@ -29,10 +70,17 @@ export function loadProfiles(): ProfilesStore {
     return structuredClone(EMPTY_STORE);
   }
 
-  return {
+  const store: ProfilesStore = {
     active: data.active ?? null,
     profiles: data.profiles ?? {},
   };
+
+  // 自动迁移旧格式（opus/sonnet/haiku → main/fast）
+  if (migrateOldProfiles(store)) {
+    saveProfiles(store);
+  }
+
+  return store;
 }
 
 /**

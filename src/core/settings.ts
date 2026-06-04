@@ -65,16 +65,15 @@ export function buildSettingsFromProfile(
   if (profile.token) {
     env.ANTHROPIC_AUTH_TOKEN = profile.token;
   }
-  if (profile.opus) {
-    const opusModel = apply1m(profile.opus, profile.opus_1m);
-    env.ANTHROPIC_MODEL = opusModel;
-    env.ANTHROPIC_DEFAULT_OPUS_MODEL = opusModel;
+  if (profile.main) {
+    const mainModel = apply1m(profile.main, profile.main_1m);
+    env.ANTHROPIC_MODEL = mainModel;
+    env.ANTHROPIC_DEFAULT_OPUS_MODEL = mainModel;
   }
-  if (profile.sonnet) {
-    env.ANTHROPIC_DEFAULT_SONNET_MODEL = apply1m(profile.sonnet, profile.sonnet_1m);
-  }
-  if (profile.haiku) {
-    env.ANTHROPIC_DEFAULT_HAIKU_MODEL = profile.haiku;
+  if (profile.fast) {
+    const fastModel = apply1m(profile.fast, profile.fast_1m);
+    env.ANTHROPIC_DEFAULT_SONNET_MODEL = fastModel;
+    env.ANTHROPIC_DEFAULT_HAIKU_MODEL = fastModel;
   }
 
   return settings;
@@ -123,19 +122,17 @@ export function extractProfileFromSettings(name: string): Profile {
   const token = env.ANTHROPIC_AUTH_TOKEN ?? env.ANTHROPIC_API_KEY ?? "";
   const endpoint = env.ANTHROPIC_BASE_URL ?? "";
 
-  const opusParsed = parseModel1m(env.ANTHROPIC_DEFAULT_OPUS_MODEL ?? "");
-  const sonnetParsed = parseModel1m(env.ANTHROPIC_DEFAULT_SONNET_MODEL ?? "");
-  const haiku = env.ANTHROPIC_DEFAULT_HAIKU_MODEL ?? "";
+  const mainParsed = parseModel1m(env.ANTHROPIC_DEFAULT_OPUS_MODEL ?? "");
+  const fastParsed = parseModel1m(env.ANTHROPIC_DEFAULT_SONNET_MODEL ?? env.ANTHROPIC_DEFAULT_HAIKU_MODEL ?? "");
 
   return {
     name,
     vendor: "",
     endpoint,
     token,
-    opus: opusParsed.name,
-    opus_1m: opusParsed.has1m,
-    sonnet: sonnetParsed.name,
-    sonnet_1m: sonnetParsed.has1m,
-    haiku,
+    main: mainParsed.name,
+    main_1m: mainParsed.has1m,
+    fast: fastParsed.name,
+    fast_1m: fastParsed.has1m,
   };
 }

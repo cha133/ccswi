@@ -8,15 +8,14 @@ export interface ProviderPreset {
 
 /** 单个配置 profile */
 export interface Profile {
-  name: string;       // 唯一标识，小写，可含空格
-  vendor: string;     // 供应商名称（如 "DeepSeek"），空字符串表示无供应商
-  endpoint: string;   // ANTHROPIC_BASE_URL
-  token: string;      // ANTHROPIC_AUTH_TOKEN
-  opus: string;       // Opus 模型名（不含 [1m]）
-  opus_1m: boolean;   // 是否追加 [1m] 后缀
-  sonnet: string;     // Sonnet 模型名（不含 [1m]）
-  sonnet_1m: boolean; // 是否追加 [1m] 后缀
-  haiku: string;      // Haiku 模型名（无 1m 选项）
+  name: string;         // 唯一标识，小写，可含空格
+  vendor: string;       // 供应商名称（如 "DeepSeek"），空字符串表示无供应商
+  endpoint: string;     // ANTHROPIC_BASE_URL
+  token: string;        // ANTHROPIC_AUTH_TOKEN
+  main: string;          // 主模型名（不含 [1m]），映射到 ANTHROPIC_MODEL + ANTHROPIC_DEFAULT_OPUS_MODEL
+  main_1m: boolean;      // 主模型是否追加 [1m] 后缀
+  fast: string;          // 快速模型名（不含 [1m]），映射到 ANTHROPIC_DEFAULT_SONNET_MODEL + ANTHROPIC_DEFAULT_HAIKU_MODEL
+  fast_1m: boolean;      // 快速模型是否追加 [1m] 后缀
 }
 
 /** profiles.toml 的顶层结构 */
@@ -38,10 +37,9 @@ export function createEmptyProfile(name: string): Profile {
     vendor: "",
     endpoint: "",
     token: "",
-    opus: "",
-    opus_1m: false,
-    sonnet: "",
-    sonnet_1m: false,
-    haiku: "",
+    main: "",
+    main_1m: false,
+    fast: "",
+    fast_1m: false,
   };
 }
