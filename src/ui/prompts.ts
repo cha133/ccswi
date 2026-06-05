@@ -202,17 +202,20 @@ export async function promptNewProfile(
   });
   const models = await loadModels();
 
-  // 6. 主模型（Main model）— 给 default model 和 opus 用
-  const main = await promptModel("Main model (default + opus):", models);
+  // 6. Opus 模型
+  const opus = await promptModel("Opus model:", models);
 
-  // 7. 主模型 1M
-  const main1m = await prompt1m("main model", true);
+  // 7. Opus 1M
+  const opus1m = await prompt1m("Opus", true);
 
-  // 8. 快速模型（Fast model）— 给 sonnet 和 haiku 用
-  const fast = await promptModel("Fast model (sonnet + haiku):", models, main, `↩ Use same model as main (${main})`);
+  // 8. Sonnet 模型（可复用 Opus）
+  const sonnet = await promptModel("Sonnet model:", models, opus, `↩ Use same model as Opus (${opus})`);
 
-  // 9. 快速模型 1M
-  const fast1m = await prompt1m("fast model", main1m);
+  // 9. Sonnet 1M（默认沿用 Opus 的 1M 设置）
+  const sonnet1m = await prompt1m("Sonnet", opus1m);
+
+  // 10. Haiku 模型（可复用 Sonnet）
+  const haiku = await promptModel("Haiku model:", models, sonnet, `↩ Use same model as Sonnet (${sonnet})`);
 
   // 构建 profile
   const profile: Profile = {
@@ -220,10 +223,11 @@ export async function promptNewProfile(
     vendor: isNoVendor ? "" : vendor.name,
     endpoint: endpoint.trim(),
     token: token?.trim() || "",
-    main: main.trim(),
-    main_1m: main1m,
-    fast: fast.trim(),
-    fast_1m: fast1m,
+    opus: opus.trim(),
+    opus_1m: opus1m,
+    sonnet: sonnet.trim(),
+    sonnet_1m: sonnet1m,
+    haiku: haiku.trim(),
   };
 
   return profile;
@@ -257,35 +261,44 @@ export async function promptEditProfile(
   );
 
   // 模型用文本输入，预填现有值
-  const main = checkCancel(
+  const opus = checkCancel(
     await p.text({
-      message: "Main model (default + opus):",
-      initialValue: existing.main,
+      message: "Opus model:",
+      initialValue: existing.opus,
       placeholder: "Press Enter to keep current value",
     }),
   );
 
-  const main1m = await prompt1m("main model", existing.main_1m);
+  const opus1m = await prompt1m("Opus", existing.opus_1m);
 
-  const fast = checkCancel(
+  const sonnet = checkCancel(
     await p.text({
-      message: "Fast model (sonnet + haiku):",
-      initialValue: existing.fast || main,
+      message: "Sonnet model:",
+      initialValue: existing.sonnet || opus,
       placeholder: "Press Enter to keep current value",
     }),
   );
 
-  const fast1m = await prompt1m("fast model", existing.fast_1m);
+  const sonnet1m = await prompt1m("Sonnet", existing.sonnet_1m);
+
+  const haiku = checkCancel(
+    await p.text({
+      message: "Haiku model:",
+      initialValue: existing.haiku || sonnet,
+      placeholder: "Press Enter to keep current value",
+    }),
+  );
 
   return {
     name: existing.name,
     vendor: existing.vendor,
     endpoint: endpoint.trim(),
     token: token?.trim() || existing.token,
-    main: main.trim(),
-    main_1m: main1m,
-    fast: fast.trim(),
-    fast_1m: fast1m,
+    opus: opus.trim(),
+    opus_1m: opus1m,
+    sonnet: sonnet.trim(),
+    sonnet_1m: sonnet1m,
+    haiku: haiku.trim(),
   };
 }
 

@@ -23,7 +23,7 @@ export function register(program: Command): void {
         // 交互成功后才保存 default 备份（如果有的话）
         if (needsDefaultBackup) {
           const defaultProfile = extractProfileFromSettings("default");
-          if (defaultProfile.endpoint || defaultProfile.token || defaultProfile.main || defaultProfile.fast) {
+          if (defaultProfile.endpoint || defaultProfile.token || defaultProfile.opus || defaultProfile.sonnet || defaultProfile.haiku) {
             addProfile(store, defaultProfile);
           }
         }
