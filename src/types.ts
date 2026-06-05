@@ -16,7 +16,8 @@ export interface Profile {
   opus_1m: boolean;   // 是否追加 [1m] 后缀
   sonnet: string;     // Sonnet 模型名（不含 [1m]）
   sonnet_1m: boolean; // 是否追加 [1m] 后缀
-  haiku: string;      // Haiku 模型名（无 1m 选项）
+  haiku: string;      // Haiku 模型名（不含 [1m]）
+  haiku_1m: boolean;  // 是否追加 [1m] 后缀
 }
 
 /** profiles.toml 的顶层结构 */
@@ -43,5 +44,6 @@ export function createEmptyProfile(name: string): Profile {
     sonnet: "",
     sonnet_1m: false,
     haiku: "",
+    haiku_1m: false,
   };
 }

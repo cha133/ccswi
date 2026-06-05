@@ -19,12 +19,13 @@ function migrateMainFastProfiles(store: ProfilesStore): boolean {
       const fast = (p.fast as string) ?? "";
       const fast1m = (p.fast_1m as boolean) ?? false;
 
-      // opus = main；sonnet = fast（保留 1m 标志）；haiku = fast（haiku 不支持 1m）
+      // opus = main；sonnet = fast（保留 1m 标志）；haiku = fast（也保留 1m 标志）
       p.opus = main;
       p.opus_1m = main1m;
       p.sonnet = fast;
       p.sonnet_1m = fast1m;
       p.haiku = fast;
+      p.haiku_1m = fast1m;
 
       // 删除旧字段
       delete p.main;
@@ -69,8 +70,22 @@ export function loadProfiles(): ProfilesStore {
     profiles: data.profiles ?? {},
   };
 
+  let needsSave = false;
+
   // 自动迁移 main/fast 格式 → opus/sonnet/haiku
   if (migrateMainFastProfiles(store)) {
+    needsSave = true;
+  }
+
+  // 兼容补丁：旧版 profile 可能缺少 haiku_1m
+  for (const p of Object.values(store.profiles)) {
+    if (p.haiku_1m === undefined) {
+      (p as unknown as Record<string, unknown>).haiku_1m = false;
+      needsSave = true;
+    }
+  }
+
+  if (needsSave) {
     saveProfiles(store);
   }
 

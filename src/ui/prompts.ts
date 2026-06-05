@@ -89,14 +89,23 @@ async function promptModel(
   }
   topOptions.push({ value: CUSTOM, label: "✏️  Enter custom model name..." });
 
+  const allOptions = [
+    ...topOptions,
+    ...models.map((name) => ({ value: name, label: name })),
+  ];
+
+  // 判断 defaultValue 是否在选项列表中（以便预选中）
+  const hasInOptions = defaultValue
+    ? allOptions.some((o) => o.value === defaultValue)
+    : false;
+
   // 使用 autocomplete，支持搜索过滤
   const result = checkCancel(
     await p.autocomplete<string>({
       message,
-      options: [
-        ...topOptions,
-        ...models.map((name) => ({ value: name, label: name })),
-      ],
+      options: allOptions,
+      initialValue: hasInOptions ? defaultValue : undefined,
+      initialUserInput: !hasInOptions && defaultValue ? defaultValue : undefined,
       filter: (search: string, option: { value: string; label?: string }) => {
         // 特殊选项只在无搜索时显示
         if (option.value === CUSTOM || option.value === REUSE) return !search;
@@ -121,6 +130,16 @@ async function promptModel(
   }
 
   return result;
+}
+
+/**
+ * 掩码 token（前 4 + 后 4 可见，中间显示实际位数的 *）
+ */
+function maskToken(token: string): string {
+  if (!token) return "";
+  if (token.length <= 8) return "*".repeat(token.length);
+  const midLen = token.length - 8;
+  return `${token.slice(0, 4)}${"•".repeat(midLen)}${token.slice(-4)}`;
 }
 
 /**
@@ -211,11 +230,14 @@ export async function promptNewProfile(
   // 8. Sonnet 模型（可复用 Opus）
   const sonnet = await promptModel("Sonnet model:", models, opus, `↩ Use same model as Opus (${opus})`);
 
-  // 9. Sonnet 1M（默认沿用 Opus 的 1M 设置）
-  const sonnet1m = await prompt1m("Sonnet", opus1m);
+  // 9. Sonnet 1M（复用 Opus 模型时自动继承，否则询问）
+  const sonnet1m = sonnet.trim() === opus.trim() ? opus1m : await prompt1m("Sonnet", opus1m);
 
   // 10. Haiku 模型（可复用 Sonnet）
   const haiku = await promptModel("Haiku model:", models, sonnet, `↩ Use same model as Sonnet (${sonnet})`);
+
+  // 11. Haiku 1M（复用 Sonnet 模型时自动继承，否则询问）
+  const haiku1m = haiku.trim() === sonnet.trim() ? sonnet1m : await prompt1m("Haiku", sonnet1m);
 
   // 构建 profile
   const profile: Profile = {
@@ -228,6 +250,7 @@ export async function promptNewProfile(
     sonnet: sonnet.trim(),
     sonnet_1m: sonnet1m,
     haiku: haiku.trim(),
+    haiku_1m: haiku1m,
   };
 
   return profile;
@@ -235,7 +258,7 @@ export async function promptNewProfile(
 
 /**
  * 编辑已有 profile 的交互流程
- * vendor 和 name 不可改，模型用文本输入（预填现有值）
+ * vendor 和 name 不可改，模型使用选择框（默认选中当前值）
  */
 export async function promptEditProfile(
   existing: Profile,
@@ -251,54 +274,47 @@ export async function promptEditProfile(
     }),
   );
 
-  // API Key / Token
-  const token = checkCancel(
+  // API Key / Token（显示打码值，回车保留，修改则覆盖）
+  const tokenMasked = maskToken(existing.token);
+  const tokenRaw = checkCancel(
     await p.text({
       message: "API Key / Token (ANTHROPIC_AUTH_TOKEN):",
-      initialValue: existing.token,
-      placeholder: "Press Enter to keep current value",
+      initialValue: tokenMasked,
+      placeholder: "Press Enter to keep current",
     }),
   );
+  const token = tokenRaw.trim() === tokenMasked ? existing.token : tokenRaw.trim();
 
-  // 模型用文本输入，预填现有值
-  const opus = checkCancel(
-    await p.text({
-      message: "Opus model:",
-      initialValue: existing.opus,
-      placeholder: "Press Enter to keep current value",
-    }),
-  );
+  // 预加载模型列表（用现有 endpoint / token）
+  setProviderContext({
+    endpoint: endpoint.trim() || existing.endpoint || undefined,
+    token: token || existing.token || undefined,
+  });
+  const models = await loadModels();
 
+  // Opus 模型
+  const opus = await promptModel("Opus model:", models, existing.opus);
   const opus1m = await prompt1m("Opus", existing.opus_1m);
 
-  const sonnet = checkCancel(
-    await p.text({
-      message: "Sonnet model:",
-      initialValue: existing.sonnet || opus,
-      placeholder: "Press Enter to keep current value",
-    }),
-  );
+  // Sonnet 模型（可复用 Opus）
+  const sonnet = await promptModel("Sonnet model:", models, existing.sonnet || opus, `↩ Use same model as Opus (${opus})`);
+  const sonnet1m = sonnet.trim() === opus.trim() ? opus1m : await prompt1m("Sonnet", existing.sonnet_1m);
 
-  const sonnet1m = await prompt1m("Sonnet", existing.sonnet_1m);
-
-  const haiku = checkCancel(
-    await p.text({
-      message: "Haiku model:",
-      initialValue: existing.haiku || sonnet,
-      placeholder: "Press Enter to keep current value",
-    }),
-  );
+  // Haiku 模型（可复用 Sonnet）
+  const haiku = await promptModel("Haiku model:", models, existing.haiku || sonnet, `↩ Use same model as Sonnet (${sonnet})`);
+  const haiku1m = haiku.trim() === sonnet.trim() ? sonnet1m : await prompt1m("Haiku", existing.haiku_1m);
 
   return {
     name: existing.name,
     vendor: existing.vendor,
     endpoint: endpoint.trim(),
-    token: token?.trim() || existing.token,
+    token,
     opus: opus.trim(),
     opus_1m: opus1m,
     sonnet: sonnet.trim(),
     sonnet_1m: sonnet1m,
     haiku: haiku.trim(),
+    haiku_1m: haiku1m,
   };
 }
 

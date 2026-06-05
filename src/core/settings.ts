@@ -74,7 +74,7 @@ export function buildSettingsFromProfile(
     env.ANTHROPIC_DEFAULT_SONNET_MODEL = apply1m(profile.sonnet, profile.sonnet_1m);
   }
   if (profile.haiku) {
-    env.ANTHROPIC_DEFAULT_HAIKU_MODEL = profile.haiku;
+    env.ANTHROPIC_DEFAULT_HAIKU_MODEL = apply1m(profile.haiku, profile.haiku_1m);
   }
 
   return settings;
@@ -125,7 +125,7 @@ export function extractProfileFromSettings(name: string): Profile {
 
   const opusParsed = parseModel1m(env.ANTHROPIC_DEFAULT_OPUS_MODEL ?? "");
   const sonnetParsed = parseModel1m(env.ANTHROPIC_DEFAULT_SONNET_MODEL ?? "");
-  const haiku = env.ANTHROPIC_DEFAULT_HAIKU_MODEL ?? "";
+  const haikuParsed = parseModel1m(env.ANTHROPIC_DEFAULT_HAIKU_MODEL ?? "");
 
   return {
     name,
@@ -136,6 +136,7 @@ export function extractProfileFromSettings(name: string): Profile {
     opus_1m: opusParsed.has1m,
     sonnet: sonnetParsed.name,
     sonnet_1m: sonnetParsed.has1m,
-    haiku,
+    haiku: haikuParsed.name,
+    haiku_1m: haikuParsed.has1m,
   };
 }

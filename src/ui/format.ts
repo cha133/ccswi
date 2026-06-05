@@ -69,7 +69,7 @@ export function formatProfileDetail(profile: Profile, index?: number): void {
   console.log(`${pc.dim("token:")}     ${profile.token ? maskToken(profile.token) : pc.dim("(none)")}`);
   console.log(`${pc.dim("opus:")}      ${formatModelWith1m(profile.opus, profile.opus_1m)}`);
   console.log(`${pc.dim("sonnet:")}    ${formatModelWith1m(profile.sonnet, profile.sonnet_1m)}`);
-  console.log(`${pc.dim("haiku:")}     ${profile.haiku || pc.dim("(none)")}`);
+  console.log(`${pc.dim("haiku:")}     ${formatModelWith1m(profile.haiku, profile.haiku_1m)}`);
 }
 
 /**
@@ -81,9 +81,11 @@ function formatModelWith1m(model: string, has1m: boolean): string {
 }
 
 /**
- * 掩码 token（只显示前 4 位和后 4 位）
+ * 掩码 token（前 4 + 后 4 可见，中间显示实际位数的 •）
  */
 function maskToken(token: string): string {
-  if (token.length <= 12) return "****";
-  return `${token.slice(0, 4)}...${token.slice(-4)}`;
+  if (!token) return "";
+  if (token.length <= 8) return "•".repeat(token.length);
+  const midLen = token.length - 8;
+  return `${token.slice(0, 4)}${"•".repeat(midLen)}${token.slice(-4)}`;
 }
