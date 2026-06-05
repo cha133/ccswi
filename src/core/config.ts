@@ -3,6 +3,41 @@ import { parseTOML, stringifyTOML } from "confbox";
 import type { ProfilesStore, Profile } from "../types";
 import { profilesTomlPath, ensureCcswiDir } from "../utils/paths";
 
+/**
+ * 检测并迁移 main/fast 格式的 profile（main/fast → opus/sonnet/haiku）
+ * 用于兼容曾经发布的 2-model 版本的旧配置
+ * 返回 true 表示发生了迁移，需要回写文件
+ */
+function migrateMainFastProfiles(store: ProfilesStore): boolean {
+  let migrated = false;
+  for (const raw of Object.values(store.profiles)) {
+    const p = raw as unknown as Record<string, unknown>;
+    // 检测旧字段：存在 main/fast 字段
+    if ("main" in p || "fast" in p) {
+      const main = (p.main as string) ?? "";
+      const main1m = (p.main_1m as boolean) ?? false;
+      const fast = (p.fast as string) ?? "";
+      const fast1m = (p.fast_1m as boolean) ?? false;
+
+      // opus = main；sonnet = fast（保留 1m 标志）；haiku = fast（haiku 不支持 1m）
+      p.opus = main;
+      p.opus_1m = main1m;
+      p.sonnet = fast;
+      p.sonnet_1m = fast1m;
+      p.haiku = fast;
+
+      // 删除旧字段
+      delete p.main;
+      delete p.main_1m;
+      delete p.fast;
+      delete p.fast_1m;
+
+      migrated = true;
+    }
+  }
+  return migrated;
+}
+
 const EMPTY_STORE: ProfilesStore = { active: null, profiles: {} };
 
 /**
@@ -29,10 +64,17 @@ export function loadProfiles(): ProfilesStore {
     return structuredClone(EMPTY_STORE);
   }
 
-  return {
+  const store: ProfilesStore = {
     active: data.active ?? null,
     profiles: data.profiles ?? {},
   };
+
+  // 自动迁移 main/fast 格式 → opus/sonnet/haiku
+  if (migrateMainFastProfiles(store)) {
+    saveProfiles(store);
+  }
+
+  return store;
 }
 
 /**
