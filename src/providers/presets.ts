@@ -1,11 +1,18 @@
 import type { ProviderPreset } from "../types";
 
-/** 从 cc-switch 精简而来的供应商预设列表 */
+/**
+ * Provider preset list adapted from cc-switch.
+ *
+ * Source:    https://github.com/farion1231/cc-switch
+ * Copyright: (c) 2025 Jason Young
+ * License:   MIT (see LICENSE → Third-Party Notices section)
+ */
 export const providerPresets: ProviderPreset[] = [
   { name: "Claude Official", endpoint: null, websiteUrl: "https://www.anthropic.com/claude-code" },
   { name: "Shengsuanyun", endpoint: "https://router.shengsuanyun.com/api", websiteUrl: "https://www.shengsuanyun.com/?from=CH_4HHXMRYF" },
   { name: "PatewayAI", endpoint: "https://api.pateway.ai", websiteUrl: "https://pateway.ai" },
   { name: "Ark Agent Plan", endpoint: "https://ark.cn-beijing.volces.com/api/plan", websiteUrl: "https://www.volcengine.com/activity/agentplan" },
+  { name: "Ark Coding Plan", endpoint: "https://ark.cn-beijing.volces.com/api/coding", websiteUrl: "https://www.volcengine.com/activity/codingplan-feishu" },
   { name: "BytePlus", endpoint: "https://ark.ap-southeast.bytepluses.com/api/coding", websiteUrl: "https://www.byteplus.com/en/product/modelark" },
   { name: "DouBaoSeed", endpoint: "https://ark.cn-beijing.volces.com/api/compatible", websiteUrl: "https://console.volcengine.com/ark" },
   { name: "Gemini Native", endpoint: "https://generativelanguage.googleapis.com", websiteUrl: "https://ai.google.dev/gemini-api" },

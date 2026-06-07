@@ -2,7 +2,7 @@ import type { Command } from "commander";
 import { setCommonEnv } from "../core/common-config";
 import { loadProfiles, getActiveProfile } from "../core/config";
 import { switchToProfile } from "../core/switch";
-import { success, error, warn } from "../ui/format";
+import { success, error } from "../ui/format";
 
 export function register(program: Command): void {
   const setCmd = program
@@ -32,6 +32,48 @@ export function register(program: Command): void {
         setCommonEnv("CLAUDE_CODE_USE_POWERSHELL_TOOL", "1");
         reapplyActive();
         success("PowerShell tool enabled.");
+      } catch (err) {
+        error(String(err));
+        process.exit(1);
+      }
+    });
+
+  setCmd
+    .command("no-flicker")
+    .description("Enable no-flicker / fullscreen rendering (CLAUDE_CODE_NO_FLICKER=1)")
+    .action(() => {
+      try {
+        setCommonEnv("CLAUDE_CODE_NO_FLICKER", "1");
+        reapplyActive();
+        success("No-flicker rendering enabled.");
+      } catch (err) {
+        error(String(err));
+        process.exit(1);
+      }
+    });
+
+  setCmd
+    .command("skip-ide-install")
+    .description("Skip auto-installing IDE extension (CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL=1)")
+    .action(() => {
+      try {
+        setCommonEnv("CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL", "1");
+        reapplyActive();
+        success("IDE extension auto-install skipped.");
+      } catch (err) {
+        error(String(err));
+        process.exit(1);
+      }
+    });
+
+  setCmd
+    .command("no-ide-connect")
+    .description("Disable auto-connecting to IDE (CLAUDE_CODE_AUTO_CONNECT_IDE=false)")
+    .action(() => {
+      try {
+        setCommonEnv("CLAUDE_CODE_AUTO_CONNECT_IDE", "false");
+        reapplyActive();
+        success("IDE auto-connect disabled.");
       } catch (err) {
         error(String(err));
         process.exit(1);
