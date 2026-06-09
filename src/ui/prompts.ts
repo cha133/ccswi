@@ -58,15 +58,28 @@ async function promptVendor(): Promise<ProviderPreset> {
 }
 
 /**
+ * 如果 priorModel 非空且不在 models 列表中，则将其前置。
+ * 用于"上一档用了自定义模型名"的场景：让下一档 autocomplete 能 pre-select。
+ */
+function maybePrependCustomModel(
+  models: string[] | null,
+  priorModel: string | undefined,
+): string[] | null {
+  if (!models) return null;
+  const prior = priorModel?.trim();
+  if (!prior) return models;
+  if (models.includes(prior)) return models;
+  return [prior, ...models];
+}
+
+/**
  * 模型选择 prompt
  * 支持自由输入（直接回车用输入的文本）或从列表中选择
- * reuseLabel: 如果提供，在列表最前面显示一个复用选项（如 "↩ Use opus model (xxx)"）
  */
 async function promptModel(
   message: string,
   models: string[] | null,
   defaultValue?: string,
-  reuseLabel?: string,
 ): Promise<string> {
   // 如果模型列表加载失败，fallback 到简单文本输入
   if (!models) {
@@ -80,14 +93,10 @@ async function promptModel(
   }
 
   const CUSTOM = "__ccswi_custom__";
-  const REUSE = "__ccswi_reuse__";
 
-  const topOptions: { value: string; label: string }[] = [];
-
-  if (reuseLabel && defaultValue) {
-    topOptions.push({ value: REUSE, label: reuseLabel });
-  }
-  topOptions.push({ value: CUSTOM, label: "✏️  Enter custom model name..." });
+  const topOptions: { value: string; label: string }[] = [
+    { value: CUSTOM, label: "✏️  Enter custom model name..." },
+  ];
 
   const allOptions = [
     ...topOptions,
@@ -108,16 +117,12 @@ async function promptModel(
       initialUserInput: !hasInOptions && defaultValue ? defaultValue : undefined,
       filter: (search: string, option: { value: string; label?: string }) => {
         // 特殊选项只在无搜索时显示
-        if (option.value === CUSTOM || option.value === REUSE) return !search;
+        if (option.value === CUSTOM) return !search;
         if (!search) return true;
         return fuzzyScore(search, option.value) > 0;
       },
     }),
   );
-
-  if (result === REUSE) {
-    return defaultValue!;
-  }
 
   if (result === CUSTOM) {
     return checkCancel(
@@ -227,14 +232,16 @@ export async function promptNewProfile(
   // 7. Opus 1M
   const opus1m = await prompt1m("Opus", true);
 
-  // 8. Sonnet 模型（可复用 Opus）
-  const sonnet = await promptModel("Sonnet model:", models, opus, `↩ Use same model as Opus (${opus})`);
+  // 8. Sonnet 模型（默认沿用 Opus；Opus 是自定义模型时前置到选项中以便 pre-select）
+  const sonnetModels = maybePrependCustomModel(models, opus);
+  const sonnet = await promptModel("Sonnet model:", sonnetModels, opus);
 
-  // 9. Sonnet 1M（复用 Opus 模型时自动继承，否则询问）
+  // 9. Sonnet 1M（沿用 Opus 模型时自动继承，否则询问）
   const sonnet1m = sonnet.trim() === opus.trim() ? opus1m : await prompt1m("Sonnet", opus1m);
 
-  // 10. Haiku 模型（可复用 Sonnet）
-  const haiku = await promptModel("Haiku model:", models, sonnet, `↩ Use same model as Sonnet (${sonnet})`);
+  // 10. Haiku 模型（默认沿用 Sonnet；同理）
+  const haikuModels = maybePrependCustomModel(models, sonnet);
+  const haiku = await promptModel("Haiku model:", haikuModels, sonnet);
 
   // 11. Haiku 1M（复用 Sonnet 模型时自动继承，否则询问）
   const haiku1m = haiku.trim() === sonnet.trim() ? sonnet1m : await prompt1m("Haiku", sonnet1m);
@@ -296,12 +303,14 @@ export async function promptEditProfile(
   const opus = await promptModel("Opus model:", models, existing.opus);
   const opus1m = await prompt1m("Opus", existing.opus_1m);
 
-  // Sonnet 模型（可复用 Opus）
-  const sonnet = await promptModel("Sonnet model:", models, existing.sonnet || opus, `↩ Use same model as Opus (${opus})`);
+  // Sonnet 模型（默认沿用 Opus；同理把现有或新选的 sonnet 前置到选项中以便 pre-select）
+  const sonnetModels = maybePrependCustomModel(models, existing.sonnet || opus);
+  const sonnet = await promptModel("Sonnet model:", sonnetModels, existing.sonnet || opus);
   const sonnet1m = sonnet.trim() === opus.trim() ? opus1m : await prompt1m("Sonnet", existing.sonnet_1m);
 
-  // Haiku 模型（可复用 Sonnet）
-  const haiku = await promptModel("Haiku model:", models, existing.haiku || sonnet, `↩ Use same model as Sonnet (${sonnet})`);
+  // Haiku 模型（同理）
+  const haikuModels = maybePrependCustomModel(models, existing.haiku || sonnet);
+  const haiku = await promptModel("Haiku model:", haikuModels, existing.haiku || sonnet);
   const haiku1m = haiku.trim() === sonnet.trim() ? sonnet1m : await prompt1m("Haiku", existing.haiku_1m);
 
   return {
