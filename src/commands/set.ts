@@ -9,12 +9,24 @@ export function register(program: Command): void {
 
   setCmd
     .command("disable-updater")
-    .description("Disable auto-updater (DISABLE_AUTOUPDATER=1, DISABLE_INSTALLATION_CHECKS=1)")
+    .description("Disable auto-updater (DISABLE_AUTOUPDATER=1)")
     .action(() => {
       try {
         setSettingsEnv("DISABLE_AUTOUPDATER", "1");
-        setSettingsEnv("DISABLE_INSTALLATION_CHECKS", "1");
         success("Auto-updater disabled.");
+      } catch (err) {
+        error(String(err));
+        process.exit(1);
+      }
+    });
+
+  setCmd
+    .command("disable-install-checks")
+    .description("Disable installation checks (DISABLE_INSTALLATION_CHECKS=1)")
+    .action(() => {
+      try {
+        setSettingsEnv("DISABLE_INSTALLATION_CHECKS", "1");
+        success("Installation checks disabled.");
       } catch (err) {
         error(String(err));
         process.exit(1);

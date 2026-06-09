@@ -37,6 +37,7 @@ ccswi rm <name|index>
 
 # Modify common config options
 ccswi set disable-updater
+ccswi set disable-install-checks
 ccswi set use-pwsh
 ccswi set no-flicker
 ccswi set skip-ide-install
