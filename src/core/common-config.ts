@@ -56,15 +56,3 @@ export function saveCommonConfig(common: ClaudeSettings): void {
   ensureCcswiDir();
   writeFileSync(commonConfigPath(), JSON.stringify(common, null, 2) + "\n", "utf-8");
 }
-
-/**
- * 在通用配置的 env 中添加/更新字段
- */
-export function setCommonEnv(key: string, value: string): void {
-  const common = loadCommonConfig();
-  if (!common.env) {
-    common.env = {};
-  }
-  (common.env as Record<string, string>)[key] = value;
-  saveCommonConfig(common);
-}

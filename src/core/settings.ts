@@ -31,6 +31,19 @@ export function writeSettings(settings: ClaudeSettings): void {
 }
 
 /**
+ * 在 ~/.claude/settings.json 的 env 中添加/更新一个字段。
+ * 下次 switch 时，extractAndSaveCommonConfig 会自然把非 provider 字段从 settings.json 同步到 common.json。
+ */
+export function setSettingsEnv(key: string, value: string): void {
+  const settings = readSettings();
+  if (!settings.env) {
+    settings.env = {};
+  }
+  (settings.env as Record<string, string>)[key] = value;
+  writeSettings(settings);
+}
+
+/**
  * 追加 [1m] 后缀（小写！）
  */
 function apply1m(model: string, supports1m: boolean): string {
