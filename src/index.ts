@@ -9,6 +9,7 @@ import { register as registerRm } from "./commands/rm";
 import { register as registerSet } from "./commands/set";
 import { register as registerSave } from "./commands/save";
 import { register as registerRename } from "./commands/rename";
+import { register as registerInit } from "./commands/init";
 import pkg from "../package.json" with { type: "json" };
 
 program
@@ -18,6 +19,7 @@ program
 
 // 注册所有命令
 registerSave(program);
+registerInit(program);
 registerLs(program);
 registerAdd(program);
 registerUse(program);

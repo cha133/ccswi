@@ -7,7 +7,7 @@ import { fuzzyScore } from "../utils/fuzzy";
 /**
  * 检查是否取消操作
  */
-function checkCancel<T>(value: T | symbol): T {
+export function checkCancel<T>(value: T | symbol): T {
   if (p.isCancel(value)) {
     p.cancel("Operation cancelled.");
     process.exit(0);

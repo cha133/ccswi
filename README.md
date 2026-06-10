@@ -11,6 +11,13 @@ bun add -g ccswi
 ## Usage
 
 ```bash
+# Initialize from scratch — wipe & rewrite ~/.claude/settings.json with
+# a guided wizard (set options + WebSearch deny + default mode + theme +
+# optional Exa MCP / ccstatusline + ~/.claude.json bootstrap).
+# Intended for fresh machines or full reset; existing settings.json is
+# backed up to settings.json.bak.
+ccswi init
+
 # Save current settings.json as a profile
 ccswi save [name]
 

@@ -46,7 +46,7 @@ export function setSettingsEnv(key: string, value: string): void {
 /**
  * 追加 [1m] 后缀（小写！）
  */
-function apply1m(model: string, supports1m: boolean): string {
+export function apply1m(model: string, supports1m: boolean): string {
   if (!model) return model;
   // 去掉已有的 [1m] 或 [1M] 后缀，避免重复
   const stripped = model.replace(/\[1[Mm]\]$/, "");

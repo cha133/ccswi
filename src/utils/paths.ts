@@ -12,6 +12,11 @@ export function claudeSettingsPath(): string {
   return join(homedir(), ".claude", "settings.json");
 }
 
+/** ~/.claude.json 路径（注意：是 home 根目录下，不在 ~/.claude/ 里） */
+export function claudeJsonPath(): string {
+  return join(homedir(), ".claude.json");
+}
+
 /** ~/.ccswi/profiles.toml 路径 */
 export function profilesTomlPath(): string {
   return join(ccswiDir(), "profiles.toml");
