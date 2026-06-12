@@ -156,12 +156,12 @@ export async function promptDefaultMode(): Promise<DefaultMode> {
     await p.select<DefaultMode>({
       message: "Default permission mode:",
       options: [
-        { value: "auto", label: "auto", hint: "prompt for each tool (default)" },
-        { value: "bypassPermissions", label: "bypassPermissions", hint: "allow all tools without prompting" },
+        { value: "auto", label: "auto", hint: "prompt for each tool" },
+        { value: "bypassPermissions", label: "bypassPermissions", hint: "allow all tools without prompting (default)" },
         { value: "acceptEdits", label: "acceptEdits", hint: "auto-accept file edits" },
         { value: "plan", label: "plan", hint: "read-only / plan mode" },
       ],
-      initialValue: "auto",
+      initialValue: "bypassPermissions",
     }),
   );
 }
