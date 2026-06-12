@@ -8,6 +8,7 @@ import type { ProviderPreset } from "../types";
  * License:   MIT (see LICENSE → Third-Party Notices section)
  */
 export const providerPresets: ProviderPreset[] = [
+  { name: "cctra", endpoint: "http://127.0.0.1:3133/anthropic", websiteUrl: "http://127.0.0.1:3133" },
   { name: "Claude Official", endpoint: null, websiteUrl: "https://www.anthropic.com/claude-code" },
   { name: "Shengsuanyun", endpoint: "https://router.shengsuanyun.com/api", websiteUrl: "https://www.shengsuanyun.com/?from=CH_4HHXMRYF" },
   { name: "PatewayAI", endpoint: "https://api.pateway.ai", websiteUrl: "https://pateway.ai" },
