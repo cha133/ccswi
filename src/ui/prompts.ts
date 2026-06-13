@@ -220,7 +220,7 @@ export async function promptNewProfile(
 
   // 5. 设置供应商上下文 & 预加载模型列表
   setProviderContext({
-    endpoint: isNoVendor ? undefined : endpoint.trim() || undefined,
+    endpoint: endpoint.trim() || undefined,
     modelsUrl: vendor.modelsUrl,
     token: token?.trim() || undefined,
   });
