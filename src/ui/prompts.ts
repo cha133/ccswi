@@ -168,7 +168,7 @@ export async function promptNewProfile(
 ): Promise<Profile> {
   // 1. 供应商选择
   const vendor = await promptVendor();
-  const isNoVendor = vendor.name === "(不使用供应商)";
+  const isNoVendor = vendor.name === "手动配置";
 
   // 2. Profile 名称
   const defaultName = isNoVendor ? "" : generateProfileName(vendor.name);

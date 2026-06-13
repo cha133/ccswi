@@ -73,11 +73,11 @@ export const providerPresets: ProviderPreset[] = [
 ];
 
 /**
- * 获取供应商列表，第一项是「不使用供应商」
+ * 获取供应商列表，第一项是「手动配置」
  */
 export function getVendorChoices(): ProviderPreset[] {
   return [
-    { name: "(不使用供应商)", endpoint: null, websiteUrl: "" },
+    { name: "手动配置", endpoint: null, websiteUrl: "" },
     ...providerPresets,
   ];
 }
