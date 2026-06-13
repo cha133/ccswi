@@ -1,8 +1,8 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { modelsCachePath, ensureCcswiDir } from "../utils/paths";
 
 const OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models";
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 interface CacheData {
   fetchedAt: number;
@@ -34,10 +34,19 @@ function currentCacheKey(): string {
   return ctx.endpoint || "openrouter";
 }
 
-/** 清除内存缓存（用于测试或强制刷新） */
+/** 清除内存与磁盘模型缓存（用于测试或强制刷新） */
 export function clearModelCache(): void {
   memCache = null;
   memCacheKey = undefined;
+
+  const cachePath = modelsCachePath();
+  if (existsSync(cachePath)) {
+    try {
+      rmSync(cachePath);
+    } catch {
+      // 忽略删除失败
+    }
+  }
 }
 
 // ─── 已知的 Anthropic 兼容子路径（按长度降序） ───
