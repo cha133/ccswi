@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { modelsCachePath, ensureCcswiDir } from "../utils/paths";
 
 const OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models";
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 interface CacheData {
   fetchedAt: number;
