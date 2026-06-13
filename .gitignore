@@ -35,3 +35,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # local test scripts (mock-mode dev helpers)
 scripts/
+
+# private notes
+TODO.md
