@@ -11,6 +11,7 @@ import { register as registerRename } from "./commands/rename";
 import { register as registerSet } from "./commands/set";
 import { register as registerInit } from "./commands/init";
 import { register as registerCache } from "./commands/cache";
+import { register as registerTool } from "./commands/tool";
 import pkg from "../package.json" with { type: "json" };
 
 program
@@ -30,5 +31,6 @@ registerRename(program);
 registerSet(program);
 registerInit(program);
 registerCache(program);
+registerTool(program);
 
 program.parse();

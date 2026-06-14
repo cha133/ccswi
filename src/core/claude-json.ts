@@ -16,14 +16,49 @@ export interface McpServerEntry {
 }
 
 /**
+ * 单个 project 条目的形态
+ * 字段名/语义对齐 Claude Code 内部的 ProjectConfig（见 claude-code/src/utils/config.ts）
+ * 全部 optional —— claude-code 的 getCurrentProjectConfig 走 ?? DEFAULT_PROJECT_CONFIG 兜底
+ */
+export interface ProjectConfig {
+  allowedTools?: string[];
+  mcpContextUris?: string[];
+  mcpServers?: Record<string, McpServerEntry>;
+  enabledMcpjsonServers?: string[];
+  disabledMcpjsonServers?: string[];
+  hasTrustDialogAccepted?: boolean;
+  projectOnboardingSeenCount?: number;
+  hasCompletedProjectOnboarding?: boolean;
+  hasClaudeMdExternalIncludesApproved?: boolean;
+  hasClaudeMdExternalIncludesWarningShown?: boolean;
+}
+
+/**
+ * Claude Code 内部 DEFAULT_PROJECT_CONFIG 的镜像
+ * 用于在创建新条目时填充完整默认值，避免未来 claude-code 不再走 ?? 兜底时被嫌弃
+ */
+export const DEFAULT_PROJECT_CONFIG: ProjectConfig = {
+  allowedTools: [],
+  mcpContextUris: [],
+  mcpServers: {},
+  enabledMcpjsonServers: [],
+  disabledMcpjsonServers: [],
+  hasTrustDialogAccepted: false,
+  projectOnboardingSeenCount: 0,
+  hasClaudeMdExternalIncludesApproved: false,
+  hasClaudeMdExternalIncludesWarningShown: false,
+};
+
+/**
  * ~/.claude.json 的形状
- * 我们只显式关心这三个字段，其余字段通过 [k: string] 索引签名透传，
- * 避免 read-merge-write 时把用户的 projects/userID/numStartups 等丢掉
+ * 我们只显式关心这些字段，其余字段通过 [k: string] 索引签名透传，
+ * 避免 read-merge-write 时把用户的 userID/numStartups 等丢掉
  */
 export interface ClaudeJsonShape {
   hasCompletedOnboarding?: boolean;
   theme?: string;
   mcpServers?: Record<string, McpServerEntry>;
+  projects?: Record<string, ProjectConfig>;
   [k: string]: unknown;
 }
 
@@ -52,4 +87,36 @@ export function writeClaudeJson(data: ClaudeJsonShape): void {
   const path = claudeJsonPath();
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify(data, null, 2) + "\n", "utf-8");
+}
+
+/**
+ * 归一化路径用于 key 比较：小写 + 反斜杠转正斜杠 + 去掉尾部斜杠
+ */
+function normalizeKey(p: string): string {
+  return p.toLowerCase().replace(/\\/g, "/").replace(/\/+$/, "");
+}
+
+/**
+ * 在现有 projects 里查找与 homedir() 匹配的 key
+ * claude-code 的 key 走 canonical git root + normalizePathForConfigKey（Windows 转 forward slash）
+ * HOME 一般不是 git repo，所以会落到 cwd 本身 + 规范化；我们按常见形态依次 fallback：
+ *   1. 字面值
+ *   2. 反斜杠转正斜杠
+ *   3. 小写 + 反斜杠转正斜杠
+ *   4. 扫描全部已有 key，归一化后比较
+ * 命中返回原 key（保持用户原样），没命中返回 null
+ */
+export function findHomeProjectKey(
+  projects: Record<string, ProjectConfig>,
+  home: string,
+): string | null {
+  const candidates = [home, home.replace(/\\/g, "/")];
+  for (const c of candidates) {
+    if (c in projects) return c;
+  }
+  const homeNormalized = normalizeKey(home);
+  for (const key of Object.keys(projects)) {
+    if (normalizeKey(key) === homeNormalized) return key;
+  }
+  return null;
 }
