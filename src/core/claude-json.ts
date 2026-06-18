@@ -90,6 +90,29 @@ export function writeClaudeJson(data: ClaudeJsonShape): void {
 }
 
 /**
+ * 把 ~/.claude.json 顶层的 hasCompletedOnboarding 设为 true。
+ * 其他字段（projects、mcpServers、theme、userID 等）原样保留。
+ */
+export function setClaudeJsonOnboarding(): void {
+  const data = readClaudeJson();
+  data.hasCompletedOnboarding = true;
+  writeClaudeJson(data);
+}
+
+/**
+ * 在 ~/.claude.json 顶层的 mcpServers 中注入/覆盖一个 server。
+ * 同 init 的浅合并策略：已有 mcpServers 原样保留，同名条目被新值覆盖。
+ */
+export function setClaudeJsonMcpServer(
+  name: string,
+  entry: McpServerEntry,
+): void {
+  const data = readClaudeJson();
+  data.mcpServers = { ...(data.mcpServers ?? {}), [name]: entry };
+  writeClaudeJson(data);
+}
+
+/**
  * 归一化路径用于 key 比较：小写 + 反斜杠转正斜杠 + 去掉尾部斜杠
  */
 function normalizeKey(p: string): string {

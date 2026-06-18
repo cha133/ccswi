@@ -44,6 +44,23 @@ export function setSettingsEnv(key: string, value: string): void {
 }
 
 /**
+ * 在 ~/.claude/settings.json 的 permissions.deny 中追加一项（增量写入）。
+ * 已存在的 permissions 字段（defaultMode、allow 等）原样保留。
+ * 重复追加同一项是 no-op。
+ */
+export function setSettingsPermissionsDeny(rule: string): void {
+  const settings = readSettings();
+  const permissions = (settings.permissions ?? {}) as Record<string, unknown>;
+  const existing = Array.isArray(permissions.deny)
+    ? (permissions.deny as string[])
+    : [];
+  if (!existing.includes(rule)) existing.push(rule);
+  permissions.deny = existing;
+  settings.permissions = permissions;
+  writeSettings(settings);
+}
+
+/**
  * 追加 [1m] 后缀（小写！）
  */
 export function apply1m(model: string, supports1m: boolean): string {

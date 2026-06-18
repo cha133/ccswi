@@ -42,13 +42,23 @@ ccswi rename <old> <new>
 # Delete a profile
 ccswi rm <name|index>
 
-# Modify common config options
-ccswi set disable-updater
-ccswi set disable-install-checks
-ccswi set use-pwsh
-ccswi set no-flicker
-ccswi set skip-ide-install
-ccswi set no-ide-connect
+# Tweak Claude Code behavior flags (settings.json + claude.json).
+# Migrated from `ccswi set <sub>` — same flag names, same env vars.
+ccswi tool use-pwsh                # CLAUDE_CODE_USE_POWERSHELL_TOOL=1
+ccswi tool no-flicker              # CLAUDE_CODE_NO_FLICKER=1
+ccswi tool disable-updater         # DISABLE_AUTOUPDATER=1
+ccswi tool disable-install-checks  # DISABLE_INSTALLATION_CHECKS=1
+ccswi tool skip-ide-install        # CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL=1
+ccswi tool no-ide-connect          # CLAUDE_CODE_AUTO_CONNECT_IDE="false"
+ccswi tool deny-web-search         # permissions.deny += "WebSearch"
+
+# Per-project state in ~/.claude.json
+ccswi tool skip-project-onboarding # all projects: projectOnboardingSeenCount=4
+ccswi tool trust-home              # mark homedir() as hasTrustDialogAccepted=true
+
+# Top-level / MCP toggles (init-derived, exposed surgically)
+ccswi tool install-exa             # mcpServers.exa (https://mcp.exa.ai/mcp)
+ccswi tool complete-onboarding     # hasCompletedOnboarding = true
 ```
 
 ## Profiles
