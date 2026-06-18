@@ -9,7 +9,6 @@ import { register as registerSave } from "./commands/save";
 import { register as registerRm } from "./commands/rm";
 import { register as registerRename } from "./commands/rename";
 import { register as registerInit } from "./commands/init";
-import { register as registerCache } from "./commands/cache";
 import { register as registerTool } from "./commands/tool";
 import pkg from "../package.json" with { type: "json" };
 
@@ -28,7 +27,6 @@ registerSave(program);
 registerRm(program);
 registerRename(program);
 registerInit(program);
-registerCache(program);
 registerTool(program);
 
 program.parse();

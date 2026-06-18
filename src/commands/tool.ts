@@ -10,6 +10,7 @@ import {
   type ProjectConfig,
 } from "../core/claude-json";
 import { setSettingsEnv, setSettingsPermissionsDeny } from "../core/settings";
+import { clearModelCache } from "../models/api";
 import { success, error, info } from "../ui/format";
 
 /**
@@ -223,6 +224,23 @@ export function register(program: Command): void {
       try {
         setClaudeJsonOnboarding();
         success("hasCompletedOnboarding set to true.");
+      } catch (err) {
+        error(String(err));
+        process.exit(1);
+      }
+    });
+
+  // ---- cache ----
+
+  tool
+    .command("clean-cache")
+    .description(
+      "Clear the model list cache (in-memory + on-disk) so the next fetch is fresh",
+    )
+    .action(() => {
+      try {
+        clearModelCache();
+        success("Model cache cleared.");
       } catch (err) {
         error(String(err));
         process.exit(1);

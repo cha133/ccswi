@@ -59,6 +59,9 @@ ccswi tool trust-home              # mark homedir() as hasTrustDialogAccepted=tr
 # Top-level / MCP toggles (init-derived, exposed surgically)
 ccswi tool install-exa             # mcpServers.exa (https://mcp.exa.ai/mcp)
 ccswi tool complete-onboarding     # hasCompletedOnboarding = true
+
+# Cache maintenance
+ccswi tool clean-cache             # clear ccswi's model list cache, force fresh fetch
 ```
 
 ## Profiles
