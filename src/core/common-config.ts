@@ -1,7 +1,9 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, renameSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { ClaudeSettings } from "../types";
 import { PROVIDER_ENV_KEYS, readSettings } from "./settings";
-import { commonConfigPath, ensureCcswiDir } from "../utils/paths";
+import { commonConfigPath, ensureCcswiConfigDir } from "../utils/paths";
 
 /**
  * 从 settings.json 提取通用配置
@@ -32,7 +34,7 @@ export function extractAndSaveCommonConfig(): ClaudeSettings {
 }
 
 /**
- * 从 ~/.ccswi/common.json 加载通用配置
+ * 从 $XDG_CONFIG_HOME/ccswi/common.json 加载通用配置
  * 如果不存在，从当前 settings.json 提取
  */
 export function loadCommonConfig(): ClaudeSettings {
@@ -44,15 +46,18 @@ export function loadCommonConfig(): ClaudeSettings {
   try {
     return JSON.parse(content) as ClaudeSettings;
   } catch {
-    console.warn("⚠ ~/.ccswi/common.json 格式损坏，将重新从 settings.json 提取");
+    console.warn("⚠ common.json 格式损坏，将重新从 settings.json 提取");
     return extractAndSaveCommonConfig();
   }
 }
 
 /**
- * 保存通用配置到 ~/.ccswi/common.json
+ * 保存通用配置到 $XDG_CONFIG_HOME/ccswi/common.json（原子写：tmp + rename）
  */
 export function saveCommonConfig(common: ClaudeSettings): void {
-  ensureCcswiDir();
-  writeFileSync(commonConfigPath(), JSON.stringify(common, null, 2) + "\n", "utf-8");
+  ensureCcswiConfigDir();
+  const path = commonConfigPath();
+  const tmp = join(tmpdir(), `ccswi-common-${process.pid}-${Date.now()}.json`);
+  writeFileSync(tmp, JSON.stringify(common, null, 2) + "\n", "utf-8");
+  renameSync(tmp, path);
 }

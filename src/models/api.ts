@@ -1,5 +1,7 @@
-import { existsSync, readFileSync, writeFileSync, rmSync } from "node:fs";
-import { modelsCachePath, ensureCcswiDir } from "../utils/paths";
+import { existsSync, readFileSync, writeFileSync, rmSync, renameSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { modelsCachePath, ensureCcswiCacheDir } from "../utils/paths";
 
 const OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models";
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
@@ -211,7 +213,7 @@ function saveToDiskCache(
   key: string,
   models: string[],
 ): void {
-  ensureCcswiDir();
+  ensureCcswiCacheDir();
 
   let cache: Record<string, CacheData> = {};
   if (existsSync(cachePath)) {
@@ -223,7 +225,10 @@ function saveToDiskCache(
   }
 
   cache[key] = { fetchedAt: Date.now(), source: key, models };
-  writeFileSync(cachePath, JSON.stringify(cache, null, 2), "utf-8");
+  // 原子写：tmp + rename
+  const tmp = join(tmpdir(), `ccswi-cache-${process.pid}-${Date.now()}.json`);
+  writeFileSync(tmp, JSON.stringify(cache, null, 2), "utf-8");
+  renameSync(tmp, cachePath);
 }
 
 // ─── 对外接口 ───

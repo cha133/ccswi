@@ -1,7 +1,10 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, renameSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { parseTOML, stringifyTOML } from "confbox";
 import type { ProfilesStore, Profile } from "../types";
-import { profilesTomlPath, ensureCcswiDir } from "../utils/paths";
+import { profilesTomlPath, ensureCcswiConfigDir } from "../utils/paths";
+import { runStartupMigrations, CURRENT_VERSION } from "./migrate";
 
 /**
  * 检测并迁移 main/fast 格式的 profile（main/fast → opus/sonnet/haiku）
@@ -42,10 +45,16 @@ function migrateMainFastProfiles(store: ProfilesStore): boolean {
 const EMPTY_STORE: ProfilesStore = { active: null, profiles: {} };
 
 /**
- * 从 ~/.ccswi/profiles.toml 加载所有 profile
+ * 从 $XDG_CONFIG_HOME/ccswi/profiles.toml 加载所有 profile
  * 如果文件不存在，返回空 store
+ *
+ * 启动早期会跑一次 schema migrations（v3.0.0+：从 ~/.ccswi/ 搬到 XDG）。
+ * Migration 跳过条件见 runStartupMigrations doc。
  */
 export function loadProfiles(): ProfilesStore {
+  // 1. Schema migrations（XDG 搬移等）。幂等，跳过条件内置。
+  runStartupMigrations();
+
   const path = profilesTomlPath();
   if (!existsSync(path)) {
     return structuredClone(EMPTY_STORE);
@@ -56,7 +65,7 @@ export function loadProfiles(): ProfilesStore {
   try {
     data = parseTOML(content) as ProfilesStore;
   } catch {
-    console.warn("⚠ ~/.ccswi/profiles.toml 格式损坏，将按空配置处理");
+    console.warn("⚠ profiles.toml 格式损坏，将按空配置处理");
     return structuredClone(EMPTY_STORE);
   }
 
@@ -66,6 +75,7 @@ export function loadProfiles(): ProfilesStore {
   }
 
   const store: ProfilesStore = {
+    ccswiVersion: data.ccswiVersion,
     active: data.active ?? null,
     profiles: data.profiles ?? {},
   };
@@ -93,12 +103,18 @@ export function loadProfiles(): ProfilesStore {
 }
 
 /**
- * 保存 profiles 到 ~/.ccswi/profiles.toml
+ * 保存 profiles 到 $XDG_CONFIG_HOME/ccswi/profiles.toml（原子写：tmp + rename）。
+ * 防御性：保证 ccswiVersion = CURRENT_VERSION……
  */
 export function saveProfiles(store: ProfilesStore): void {
-  ensureCcswiDir();
-  const content = stringifyTOML(store);
-  writeFileSync(profilesTomlPath(), content, "utf-8");
+  ensureCcswiConfigDir();
+  if ((store.ccswiVersion ?? 0) < CURRENT_VERSION) {
+    store.ccswiVersion = CURRENT_VERSION;
+  }
+  const path = profilesTomlPath();
+  const tmp = join(tmpdir(), `ccswi-profiles-${process.pid}-${Date.now()}.toml`);
+  writeFileSync(tmp, stringifyTOML(store as unknown as Record<string, unknown>), "utf-8");
+  renameSync(tmp, path);
 }
 
 /**

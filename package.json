@@ -1,6 +1,6 @@
 {
   "name": "ccswi",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "Lightweight CLI to switch Claude Code settings.json profiles and tweak Claude Code behavior flags",
   "type": "module",
   "bin": {
@@ -13,7 +13,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "dev": "bun run src/index.ts"
+    "dev": "bun run src/index.ts",
+    "test": "bun test",
+    "typecheck": "bunx tsc --noEmit",
+    "verify": "bunx tsc --noEmit && bun test"
   },
   "engines": {
     "bun": ">=1.0.0"
@@ -38,6 +41,7 @@
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "typescript": "^5"
   }
 }

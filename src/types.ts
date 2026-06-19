@@ -22,6 +22,16 @@ export interface Profile {
 
 /** profiles.toml 的顶层结构 */
 export interface ProfilesStore {
+  /**
+   * ccswi schema/layout 版本。v3.0.0 引入：
+   * - 0 = 老 config（无字段）→ 自动跑 XDG 迁移 + bump 到 1
+   * - 1 = 当前 layout（$XDG_CONFIG_HOME/ccswi/profiles.toml +
+   *             $XDG_CONFIG_HOME/ccswi/common.json +
+   *             $XDG_CACHE_HOME/ccswi/models-cache.json）
+   *
+   * 跟 package.json version 无关。保留 3 个 ccswi 版本后（v6.0.0+）可删除本字段和迁移代码。
+   */
+  ccswiVersion?: number;
   active: string | null;             // 当前生效的 profile 名
   profiles: Record<string, Profile>; // 按 name 索引
 }
