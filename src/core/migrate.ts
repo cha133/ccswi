@@ -20,7 +20,7 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
-import { parseTOML, stringifyTOML } from "confbox";
+import { parse, stringify } from "smol-toml";
 import { xdgConfigHome, xdgCacheHome } from "../utils/xdg";
 import { profilesTomlPath, ensureCcswiConfigDir } from "../utils/paths";
 
@@ -85,7 +85,7 @@ function shouldSkip(): boolean {
 function readCcswiVersionFromDisk(configPath: string): number {
   if (!existsSync(configPath)) return 0;
   try {
-    const data = parseTOML(readFileSync(configPath, "utf-8")) as { ccswiVersion?: number };
+    const data = parse(readFileSync(configPath, "utf-8")) as unknown as { ccswiVersion?: number };
     return data.ccswiVersion ?? 0;
   } catch {
     return 0;
@@ -97,14 +97,14 @@ function bumpCcswiVersionOnDisk(configPath: string, version: number): void {
   if (!existsSync(configPath)) return;
   let data: Record<string, unknown>;
   try {
-    data = parseTOML(readFileSync(configPath, "utf-8")) as Record<string, unknown>;
+    data = parse(readFileSync(configPath, "utf-8")) as unknown as Record<string, unknown>;
   } catch {
     return; // 解析失败不致命，下个 save 覆盖
   }
   data.ccswiVersion = version;
   ensureCcswiConfigDir();
   const tmp = `${configPath}.tmp-${process.pid}-${Date.now()}`;
-  writeFileSync(tmp, stringifyTOML(data), "utf-8");
+  writeFileSync(tmp, stringify(data), "utf-8");
   renameSync(tmp, configPath);
 }
 
@@ -138,7 +138,7 @@ export function migrateToXdg(params: {
       copyFileSync(oldProfiles, join(newDir, "profiles.toml"));
       assertCopyMatches(oldProfiles, join(newDir, "profiles.toml"));
       try {
-        parseTOML(readFileSync(join(newDir, "profiles.toml"), "utf-8"));
+        parse(readFileSync(join(newDir, "profiles.toml"), "utf-8"));
       } catch (e) {
         throw new Error(`migrated profiles.toml is not valid TOML: ${(e as Error).message}`);
       }

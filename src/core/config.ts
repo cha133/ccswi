@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, renameSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseTOML, stringifyTOML } from "confbox";
+import { parse, stringify } from "smol-toml";
 import type { ProfilesStore, Profile } from "../types";
 import { profilesTomlPath, ensureCcswiConfigDir } from "../utils/paths";
 import { runStartupMigrations, CURRENT_VERSION } from "./migrate";
@@ -63,7 +63,7 @@ export function loadProfiles(): ProfilesStore {
   const content = readFileSync(path, "utf-8");
   let data: ProfilesStore;
   try {
-    data = parseTOML(content) as ProfilesStore;
+    data = parse(content) as unknown as ProfilesStore;
   } catch {
     console.warn("⚠ profiles.toml 格式损坏，将按空配置处理");
     return structuredClone(EMPTY_STORE);
@@ -113,7 +113,7 @@ export function saveProfiles(store: ProfilesStore): void {
   }
   const path = profilesTomlPath();
   const tmp = join(tmpdir(), `ccswi-profiles-${process.pid}-${Date.now()}.toml`);
-  writeFileSync(tmp, stringifyTOML(store as unknown as Record<string, unknown>), "utf-8");
+  writeFileSync(tmp, stringify(store as unknown as Record<string, unknown>), "utf-8");
   renameSync(tmp, path);
 }
 

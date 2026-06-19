@@ -20,7 +20,7 @@ ccswi is a CLI for switching Claude Code `~/.claude/settings.json` profiles. The
 
 ### Data Flow
 
-1. **Profiles** live in `~/.ccswi/profiles.toml` (TOML via `confbox`)
+1. **Profiles** live in `~/.ccswi/profiles.toml` (TOML via `smol-toml`)
 2. **Common config** (non-provider settings) is cached in `~/.ccswi/common.json`
 3. **Switch operation** (`src/core/switch.ts`): reads current `settings.json` → strips provider env vars → saves as common config → merges target profile → writes back to `settings.json`
 

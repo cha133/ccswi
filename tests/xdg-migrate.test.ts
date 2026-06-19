@@ -25,7 +25,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseTOML } from "confbox";
+import { parse } from "smol-toml";
 import { migrateToXdg, CURRENT_VERSION } from "../src/core/migrate";
 
 // 关掉 XDG migration（这文件就是测 migration 本身的，不能让它 auto-run）
@@ -100,7 +100,7 @@ haiku = "m3"
     // Assert
     const newProfiles = join(newConfigHome, "ccswi", "profiles.toml");
     expect(existsSync(newProfiles)).toBe(true);
-    const data = parseTOML(readFileSync(newProfiles, "utf-8")) as {
+    const data = parse(readFileSync(newProfiles, "utf-8")) as unknown as {
       active: string;
       profiles: Record<string, { opus: string; sonnet: string; haiku: string }>;
     };

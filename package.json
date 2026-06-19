@@ -1,6 +1,6 @@
 {
   "name": "ccswi",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Lightweight CLI to switch Claude Code settings.json profiles and tweak Claude Code behavior flags",
   "type": "module",
   "bin": {
@@ -37,7 +37,7 @@
   "dependencies": {
     "@clack/prompts": "^1.5.0",
     "commander": "^15.0.0",
-    "confbox": "^0.2.4",
+    "smol-toml": "^1.6.1",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
