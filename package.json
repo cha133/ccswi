@@ -1,6 +1,6 @@
 {
   "name": "ccswi",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "Lightweight CLI to switch Claude Code settings.json profiles and tweak Claude Code behavior flags",
   "type": "module",
   "bin": {

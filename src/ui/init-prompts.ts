@@ -11,6 +11,7 @@ export interface SetOptionsSelections {
   disableInstallChecks: boolean;
   skipIdeInstall: boolean;
   noIdeConnect: boolean;
+  noAttributionHeader: boolean;
 }
 
 export interface ExtraConfigSelections {
@@ -30,7 +31,8 @@ type SetOptionKey =
   | "disable-updater"
   | "disable-install-checks"
   | "skip-ide-install"
-  | "no-ide-connect";
+  | "no-ide-connect"
+  | "no-attribution-header";
 
 interface SetOptionDef {
   key: SetOptionKey;
@@ -83,6 +85,12 @@ function buildSetOptionDefs(): SetOptionDef[] {
       hint: 'CLAUDE_CODE_AUTO_CONNECT_IDE="false"',
       defaultSelected: true,
     },
+    {
+      key: "no-attribution-header",
+      label: "no-attribution-header",
+      hint: 'CLAUDE_CODE_ATTRIBUTION_HEADER="0" (better cache hits on proxies)',
+      defaultSelected: true,
+    },
   ];
 }
 
@@ -104,6 +112,7 @@ async function promptSetOptions(): Promise<SetOptionsSelections> {
     disableInstallChecks: set.has("disable-install-checks"),
     skipIdeInstall: set.has("skip-ide-install"),
     noIdeConnect: set.has("no-ide-connect"),
+    noAttributionHeader: set.has("no-attribution-header"),
   };
 }
 
@@ -206,5 +215,6 @@ export function buildEnvVarsFromSetOptions(
   if (sel.disableInstallChecks) env.DISABLE_INSTALLATION_CHECKS = "1";
   if (sel.skipIdeInstall) env.CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL = "1";
   if (sel.noIdeConnect) env.CLAUDE_CODE_AUTO_CONNECT_IDE = "false";
+  if (sel.noAttributionHeader) env.CLAUDE_CODE_ATTRIBUTION_HEADER = "0";
   return env;
 }

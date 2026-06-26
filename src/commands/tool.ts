@@ -15,8 +15,8 @@ import { success, error, info } from "../ui/format";
 
 /**
  * `ccswi tool` —— 调整 ~/.claude/settings.json 和 ~/.claude.json 里的行为开关
- * 11 个扁平子命令，分三组：
- *   - settings.json env vars（6 个，原 set 命令）
+ * 12 个扁平子命令，分三组：
+ *   - settings.json env vars（7 个，原 set 命令 + no-attribution-header）
  *   - claude.json per-project state（skip-project-onboarding / trust-home）
  *   - init 派生的外科手术式开关（deny-web-search / install-exa / complete-onboarding）
  */
@@ -113,6 +113,23 @@ export function register(program: Command): void {
       try {
         setSettingsEnv("CLAUDE_CODE_AUTO_CONNECT_IDE", "false");
         success("IDE auto-connect disabled.");
+      } catch (err) {
+        error(String(err));
+        process.exit(1);
+      }
+    });
+
+  tool
+    .command("no-attribution-header")
+    .description(
+      'Disable attribution header (CLAUDE_CODE_ATTRIBUTION_HEADER="0") to stabilize prompt cache on proxies/local inference — ~/.claude/settings.json',
+    )
+    .action(() => {
+      try {
+        setSettingsEnv("CLAUDE_CODE_ATTRIBUTION_HEADER", "0");
+        success(
+          "Attribution header disabled — prompt cache will hit on proxies/local inference.",
+        );
       } catch (err) {
         error(String(err));
         process.exit(1);

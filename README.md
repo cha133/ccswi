@@ -50,6 +50,7 @@ ccswi tool disable-updater         # DISABLE_AUTOUPDATER=1
 ccswi tool disable-install-checks  # DISABLE_INSTALLATION_CHECKS=1
 ccswi tool skip-ide-install        # CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL=1
 ccswi tool no-ide-connect          # CLAUDE_CODE_AUTO_CONNECT_IDE="false"
+ccswi tool no-attribution-header   # CLAUDE_CODE_ATTRIBUTION_HEADER="0" (proxy/local cache)
 ccswi tool deny-web-search         # permissions.deny += "WebSearch"
 
 # Per-project state in ~/.claude.json
