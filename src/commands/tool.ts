@@ -9,14 +9,14 @@ import {
   setClaudeJsonMcpServer,
   type ProjectConfig,
 } from "../core/claude-json";
-import { setSettingsEnv, setSettingsPermissionsDeny } from "../core/settings";
+import { setSettingsEnv, setSettingsPermissionsDeny, setSettingsBypassPermissions } from "../core/settings";
 import { clearModelCache } from "../models/api";
 import { success, error, info } from "../ui/format";
 
 /**
  * `ccswi tool` —— 调整 ~/.claude/settings.json 和 ~/.claude.json 里的行为开关
- * 12 个扁平子命令，分三组：
- *   - settings.json env vars（7 个，原 set 命令 + no-attribution-header）
+ * 13 个扁平子命令，分三组：
+ *   - settings.json env toggles + permissions（8 个，原 set 命令 + no-attribution-header + bypass-permissions）
  *   - claude.json per-project state（skip-project-onboarding / trust-home）
  *   - init 派生的外科手术式开关（deny-web-search / install-exa / complete-onboarding）
  */
@@ -145,6 +145,23 @@ export function register(program: Command): void {
       try {
         setSettingsPermissionsDeny("WebSearch");
         success("WebSearch tool denied in permissions.deny.");
+      } catch (err) {
+        error(String(err));
+        process.exit(1);
+      }
+    });
+
+  tool
+    .command("bypass-permissions")
+    .description(
+      'Enable bypassPermissions mode (permissions.defaultMode="bypassPermissions" + skipDangerousModePermissionPrompt=true) — ~/.claude/settings.json',
+    )
+    .action(() => {
+      try {
+        setSettingsBypassPermissions();
+        success(
+          "bypassPermissions enabled — defaultMode=bypassPermissions, skipDangerousModePermissionPrompt=true.",
+        );
       } catch (err) {
         error(String(err));
         process.exit(1);

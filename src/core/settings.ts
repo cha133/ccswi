@@ -61,6 +61,27 @@ export function setSettingsPermissionsDeny(rule: string): void {
 }
 
 /**
+ * 把 ~/.claude/settings.json 切到 bypassPermissions 模式：
+ *   - permissions.defaultMode = "bypassPermissions"
+ *   - skipDangerousModePermissionPrompt = true
+ * 其它字段（env / permissions.allow / permissions.deny / theme 等）原样保留。
+ * 可重复执行，是幂等的。
+ */
+export function setSettingsBypassPermissions(): void {
+  const settings = readSettings();
+
+  // 写入 permissions.defaultMode
+  const permissions = (settings.permissions ?? {}) as Record<string, unknown>;
+  permissions.defaultMode = "bypassPermissions";
+  settings.permissions = permissions;
+
+  // skipDangerousModePermissionPrompt 是 settings.json 根级字段，不在 permissions 里
+  settings.skipDangerousModePermissionPrompt = true;
+
+  writeSettings(settings);
+}
+
+/**
  * 追加 [1m] 后缀（小写！）
  */
 export function apply1m(model: string, supports1m: boolean): string {
