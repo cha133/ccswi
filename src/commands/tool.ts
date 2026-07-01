@@ -16,7 +16,7 @@ import { success, error, info } from "../ui/format";
 /**
  * `ccswi tool` —— 调整 ~/.claude/settings.json 和 ~/.claude.json 里的行为开关
  * 13 个扁平子命令，分三组：
- *   - settings.json env toggles + permissions（8 个，原 set 命令 + no-attribution-header + bypass-permissions）
+ *   - settings.json env toggles + permissions（10 个，原 set 命令 + no-attribution-header + always-enable-effort + bypass-permissions）
  *   - claude.json per-project state（skip-project-onboarding / trust-home）
  *   - init 派生的外科手术式开关（deny-web-search / install-exa / complete-onboarding）
  */
@@ -129,6 +129,23 @@ export function register(program: Command): void {
         setSettingsEnv("CLAUDE_CODE_ATTRIBUTION_HEADER", "0");
         success(
           "Attribution header disabled — prompt cache will hit on proxies/local inference.",
+        );
+      } catch (err) {
+        error(String(err));
+        process.exit(1);
+      }
+    });
+
+  tool
+    .command("always-enable-effort")
+    .description(
+      "Always pass effort to backend (CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1) — lets models outside the effort-capable whitelist still send effort — ~/.claude/settings.json",
+    )
+    .action(() => {
+      try {
+        setSettingsEnv("CLAUDE_CODE_ALWAYS_ENABLE_EFFORT", "1");
+        success(
+          "Always-enable-effort on — models outside the effort whitelist will now pass effort to the backend.",
         );
       } catch (err) {
         error(String(err));
