@@ -39,6 +39,9 @@ ccswi edit <name|index>
 # Rename a profile
 ccswi rename <old> <new>
 
+# Clone a profile with a different model (same endpoint/token/vendor)
+ccswi cp <src> <new_name>
+
 # Delete a profile
 ccswi rm <name|index>
 

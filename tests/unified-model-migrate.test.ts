@@ -15,6 +15,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse } from "smol-toml";
 import { saveProfiles, loadProfiles } from "../src/core/config";
+import type { ProfilesStore } from "../src/types";
 
 let savedXdg: string | undefined;
 let root: string;
@@ -51,7 +52,7 @@ describe("migrateToUnifiedModel (opus/sonnet/haiku → model)", () => {
           haiku_1m: true,
         },
       },
-    });
+    } as unknown as ProfilesStore);
 
     const loaded = loadProfiles();
     const p = loaded.profiles.all_same!;
@@ -96,7 +97,7 @@ describe("migrateToUnifiedModel (opus/sonnet/haiku → model)", () => {
           haiku_1m: false,
         },
       },
-    });
+    } as unknown as ProfilesStore);
 
     const loaded = loadProfiles();
     const p = loaded.profiles.diff!;
@@ -122,7 +123,7 @@ describe("migrateToUnifiedModel (opus/sonnet/haiku → model)", () => {
           haiku_1m: false,
         },
       },
-    });
+    } as unknown as ProfilesStore);
 
     const loaded = loadProfiles();
     expect(loaded.profiles.no_opus!.model).toBe("mid");
@@ -146,7 +147,7 @@ describe("migrateToUnifiedModel (opus/sonnet/haiku → model)", () => {
           haiku_1m: false,
         },
       },
-    });
+    } as unknown as ProfilesStore);
 
     const loaded = loadProfiles();
     expect(loaded.profiles.empty!.model).toBe("");
@@ -197,7 +198,7 @@ describe("migrateToUnifiedModel (opus/sonnet/haiku → model)", () => {
           model_1m: false,
         },
       },
-    });
+    } as unknown as ProfilesStore);
 
     const loaded = loadProfiles();
     expect(loaded.profiles.old!.model).toBe("x");
@@ -223,7 +224,7 @@ describe("migrateToUnifiedModel (opus/sonnet/haiku → model)", () => {
           haiku_1m: false,
         },
       },
-    });
+    } as unknown as ProfilesStore);
 
     // 不删文件：loadProfiles 只在文件存在时跑迁移。验证「迁移触发 → 写盘」就是验证
     // on-disk 的内容被更新成新格式（第一个测试已经验证过）。这里额外验证：连续两次

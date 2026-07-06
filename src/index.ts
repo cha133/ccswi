@@ -8,6 +8,7 @@ import { register as registerEdit } from "./commands/edit";
 import { register as registerSave } from "./commands/save";
 import { register as registerRm } from "./commands/rm";
 import { register as registerRename } from "./commands/rename";
+import { register as registerCp } from "./commands/cp";
 import { register as registerInit } from "./commands/init";
 import { register as registerTool } from "./commands/tool";
 import pkg from "../package.json" with { type: "json" };
@@ -26,6 +27,7 @@ registerEdit(program);
 registerSave(program);
 registerRm(program);
 registerRename(program);
+registerCp(program);
 registerInit(program);
 registerTool(program);
 

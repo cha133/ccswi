@@ -19,8 +19,10 @@ export function checkCancel<T>(value: T | symbol): T {
  * 预加载模型列表（带 spinner）
  * 优先从供应商端点获取，失败则 fallback 到 OpenRouter
  * 返回模型名数组，失败则返回 null
+ *
+ * Export 出来给 `ccswi cp` 用 —— cp 流程只问 model + 1m，不需要整个 wizard。
  */
-async function loadModels(): Promise<string[] | null> {
+export async function loadModels(): Promise<string[] | null> {
   const s = p.spinner();
   s.start("Loading model list...");
   try {
@@ -75,8 +77,10 @@ function maybePrependCustomModel(
 /**
  * 模型选择 prompt
  * 支持自由输入（直接回车用输入的文本）或从列表中选择
+ *
+ * Export 出来给 `ccswi cp` 用。
  */
-async function promptModel(
+export async function promptModel(
   message: string,
   models: string[] | null,
   defaultValue?: string,
@@ -149,8 +153,10 @@ function maskToken(token: string): string {
 
 /**
  * 1M 支持选择 prompt
+ *
+ * Export 出来给 `ccswi cp` 用。
  */
-async function prompt1m(label: string, defaultValue: boolean = true): Promise<boolean> {
+export async function prompt1m(label: string, defaultValue: boolean = true): Promise<boolean> {
   const result = checkCancel(
     await p.confirm({
       message: `Does ${label} support 1M context?`,
