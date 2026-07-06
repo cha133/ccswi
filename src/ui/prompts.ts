@@ -226,25 +226,11 @@ export async function promptNewProfile(
   });
   const models = await loadModels();
 
-  // 6. Opus 模型
-  const opus = await promptModel("Opus model:", models);
+  // 6. Model（v4.0.0+：单一模型字段，覆盖原本的 opus/sonnet/haiku 三档）
+  const model = await promptModel("Model:", models);
 
-  // 7. Opus 1M
-  const opus1m = await prompt1m("Opus", true);
-
-  // 8. Sonnet 模型（默认沿用 Opus；Opus 是自定义模型时前置到选项中以便 pre-select）
-  const sonnetModels = maybePrependCustomModel(models, opus);
-  const sonnet = await promptModel("Sonnet model:", sonnetModels, opus);
-
-  // 9. Sonnet 1M（沿用 Opus 模型时自动继承，否则询问）
-  const sonnet1m = sonnet.trim() === opus.trim() ? opus1m : await prompt1m("Sonnet", opus1m);
-
-  // 10. Haiku 模型（默认沿用 Sonnet；同理）
-  const haikuModels = maybePrependCustomModel(models, sonnet);
-  const haiku = await promptModel("Haiku model:", haikuModels, sonnet);
-
-  // 11. Haiku 1M（复用 Sonnet 模型时自动继承，否则询问）
-  const haiku1m = haiku.trim() === sonnet.trim() ? sonnet1m : await prompt1m("Haiku", sonnet1m);
+  // 7. Model 1M
+  const model1m = await prompt1m("Model", true);
 
   // 构建 profile
   const profile: Profile = {
@@ -252,12 +238,8 @@ export async function promptNewProfile(
     vendor: isNoVendor ? "" : vendor.name,
     endpoint: endpoint.trim(),
     token: token?.trim() || "",
-    opus: opus.trim(),
-    opus_1m: opus1m,
-    sonnet: sonnet.trim(),
-    sonnet_1m: sonnet1m,
-    haiku: haiku.trim(),
-    haiku_1m: haiku1m,
+    model: model.trim(),
+    model_1m: model1m,
   };
 
   return profile;
@@ -300,30 +282,16 @@ export async function promptEditProfile(
   const models = await loadModels();
 
   // Opus 模型
-  const opus = await promptModel("Opus model:", models, existing.opus);
-  const opus1m = await prompt1m("Opus", existing.opus_1m);
-
-  // Sonnet 模型（默认沿用 Opus；Opus 是自定义模型时前置到选项中以便 pre-select）
-  const sonnetModels = maybePrependCustomModel(models, opus);
-  const sonnet = await promptModel("Sonnet model:", sonnetModels, opus);
-  const sonnet1m = sonnet.trim() === opus.trim() ? opus1m : await prompt1m("Sonnet", opus1m);
-
-  // Haiku 模型（默认沿用 Sonnet；同理）
-  const haikuModels = maybePrependCustomModel(models, sonnet);
-  const haiku = await promptModel("Haiku model:", haikuModels, sonnet);
-  const haiku1m = haiku.trim() === sonnet.trim() ? sonnet1m : await prompt1m("Haiku", sonnet1m);
+  const model = await promptModel("Model:", models, existing.model);
+  const model1m = await prompt1m("Model", existing.model_1m);
 
   return {
     name: existing.name,
     vendor: existing.vendor,
     endpoint: endpoint.trim(),
     token,
-    opus: opus.trim(),
-    opus_1m: opus1m,
-    sonnet: sonnet.trim(),
-    sonnet_1m: sonnet1m,
-    haiku: haiku.trim(),
-    haiku_1m: haiku1m,
+    model: model.trim(),
+    model_1m: model1m,
   };
 }
 

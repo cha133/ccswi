@@ -35,16 +35,12 @@ export function buildSettingsForInit(
   if (profile.token) {
     env.ANTHROPIC_AUTH_TOKEN = profile.token;
   }
-  if (profile.opus) {
-    const opusModel = apply1m(profile.opus, profile.opus_1m);
-    env.ANTHROPIC_MODEL = opusModel;
-    env.ANTHROPIC_DEFAULT_OPUS_MODEL = opusModel;
-  }
-  if (profile.sonnet) {
-    env.ANTHROPIC_DEFAULT_SONNET_MODEL = apply1m(profile.sonnet, profile.sonnet_1m);
-  }
-  if (profile.haiku) {
-    env.ANTHROPIC_DEFAULT_HAIKU_MODEL = apply1m(profile.haiku, profile.haiku_1m);
+  if (profile.model) {
+    const modelValue = apply1m(profile.model, profile.model_1m);
+    env.ANTHROPIC_MODEL = modelValue;
+    env.ANTHROPIC_DEFAULT_OPUS_MODEL = modelValue;
+    env.ANTHROPIC_DEFAULT_SONNET_MODEL = modelValue;
+    env.ANTHROPIC_DEFAULT_HAIKU_MODEL = modelValue;
   }
   settings.env = env;
 

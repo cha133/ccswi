@@ -83,8 +83,14 @@ Each profile contains:
 - **vendor** — Provider preset name (optional)
 - **endpoint** — `ANTHROPIC_BASE_URL`
 - **token** — `ANTHROPIC_AUTH_TOKEN`
-- **opus / sonnet / haiku** — Model names for each tier
-- **opus_1m / sonnet_1m** — Whether the model supports 1M context
+- **model** — Single model name (v4.0.0+; was three tiers `opus / sonnet / haiku` in v3.x)
+- **model_1m** — Whether the model supports 1M context
+
+On switch, the same `model` value is written to all four `ANTHROPIC_*_MODEL`
+env vars (`ANTHROPIC_MODEL`, `ANTHROPIC_DEFAULT_OPUS_MODEL`,
+`ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`) so downstream
+tooling that reads any one of the slots keeps working. Pre-v4.0.0 profiles with
+the three-tier layout auto-migrate on first load (`opus` wins; silently).
 
 ## Acknowledgements
 

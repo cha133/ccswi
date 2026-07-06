@@ -32,12 +32,8 @@ describe("profiles.toml round-trip", () => {
           vendor: "Minimax",
           endpoint: "https://api.example.com",
           token: "sk-test",
-          opus: "m1",
-          opus_1m: true,
-          sonnet: "m2",
-          sonnet_1m: false,
-          haiku: "m3",
-          haiku_1m: true,
+          model: "m1",
+          model_1m: true,
         },
       },
     });
@@ -48,12 +44,8 @@ describe("profiles.toml round-trip", () => {
     expect(p.vendor).toBe("Minimax");
     expect(p.endpoint).toBe("https://api.example.com");
     expect(p.token).toBe("sk-test");
-    expect(p.opus).toBe("m1");
-    expect(p.opus_1m).toBe(true);
-    expect(p.sonnet).toBe("m2");
-    expect(p.sonnet_1m).toBe(false);
-    expect(p.haiku).toBe("m3");
-    expect(p.haiku_1m).toBe(true);
+    expect(p.model).toBe("m1");
+    expect(p.model_1m).toBe(true);
   });
 
   test("CJK vendor string round-trips", () => {
@@ -66,12 +58,8 @@ describe("profiles.toml round-trip", () => {
           vendor: cjk,
           endpoint: "",
           token: "",
-          opus: "",
-          opus_1m: false,
-          sonnet: "",
-          sonnet_1m: false,
-          haiku: "",
-          haiku_1m: false,
+          model: "",
+          model_1m: false,
         },
       },
     });
@@ -87,12 +75,8 @@ describe("profiles.toml round-trip", () => {
           vendor: "",
           endpoint: "",
           token: "",
-          opus: "",
-          opus_1m: false,
-          sonnet: "",
-          sonnet_1m: false,
-          haiku: "",
-          haiku_1m: false,
+          model: "",
+          model_1m: false,
         },
       },
     });

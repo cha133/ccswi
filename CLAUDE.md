@@ -46,9 +46,11 @@ The constant `PROVIDER_ENV_KEYS` in `src/core/settings.ts` defines which env var
 
 ### Model Name Convention
 
-Each profile stores three model slots:
-- **opus** — maps to `ANTHROPIC_MODEL` + `ANTHROPIC_DEFAULT_OPUS_MODEL` (the main/large model)
-- **sonnet** — maps to `ANTHROPIC_DEFAULT_SONNET_MODEL` (the mid-tier model)
-- **haiku** — maps to `ANTHROPIC_DEFAULT_HAIKU_MODEL` (the small/fast model)
+Each profile stores one model slot:
+- **model** — maps to all four `ANTHROPIC_*_MODEL` env vars (`ANTHROPIC_MODEL`, `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`)
 
-Opus and sonnet support a `*_1m: true` flag which appends `[1m]` to the model name (e.g., `claude-opus-4-20250514[1m]`) to indicate 1-million token context support. Haiku has no 1m option.
+The same value is written to all four slots so Claude Code and downstream tooling that reads any one of them keep working.
+
+`model_1m: true` appends `[1m]` to the model name (e.g., `claude-opus-4-20250514[1m]`) to indicate 1-million token context support.
+
+**v4.0.0 migration**: pre-v4.0.0 profiles stored three slots (`opus`, `sonnet`, `haiku`). On first load with v4.0.0+, `loadProfiles` auto-collapses them into one `model` field (opus wins, silent). Migration code stays in place for ~1–2 weeks then gets deleted.

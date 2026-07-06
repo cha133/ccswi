@@ -94,6 +94,10 @@ export function apply1m(model: string, supports1m: boolean): string {
 /**
  * 从 profile + 通用配置合成最终的 settings.json
  * 这是核心函数：将 profile 的 provider 字段注入到通用配置中
+ *
+ * v4.0.0+：profile 只带一个 model 字段，但为了兼容 Claude Code 内部以及下游脚本
+ * （OpenRouter 集成、用户自写 wrapper 等），把同一个 model 值写到全部四个
+ * ANTHROPIC_*_MODEL env slot。
  */
 export function buildSettingsFromProfile(
   profile: Profile,
@@ -116,16 +120,12 @@ export function buildSettingsFromProfile(
   if (profile.token) {
     env.ANTHROPIC_AUTH_TOKEN = profile.token;
   }
-  if (profile.opus) {
-    const opusModel = apply1m(profile.opus, profile.opus_1m);
-    env.ANTHROPIC_MODEL = opusModel;
-    env.ANTHROPIC_DEFAULT_OPUS_MODEL = opusModel;
-  }
-  if (profile.sonnet) {
-    env.ANTHROPIC_DEFAULT_SONNET_MODEL = apply1m(profile.sonnet, profile.sonnet_1m);
-  }
-  if (profile.haiku) {
-    env.ANTHROPIC_DEFAULT_HAIKU_MODEL = apply1m(profile.haiku, profile.haiku_1m);
+  if (profile.model) {
+    const modelValue = apply1m(profile.model, profile.model_1m);
+    env.ANTHROPIC_MODEL = modelValue;
+    env.ANTHROPIC_DEFAULT_OPUS_MODEL = modelValue;
+    env.ANTHROPIC_DEFAULT_SONNET_MODEL = modelValue;
+    env.ANTHROPIC_DEFAULT_HAIKU_MODEL = modelValue;
   }
 
   return settings;
@@ -166,6 +166,9 @@ function parseModel1m(model: string): { name: string; has1m: boolean } {
 /**
  * 从当前 settings.json 中提取 provider 字段，生成一个 Profile
  * 这是 buildSettingsFromProfile 的逆操作
+ *
+ * v4.0.0+：只关心一个 model 字段。读源优先级 opus slot > ANTHROPIC_MODEL >
+ * sonnet/haiku slot（最后一个 fallback 是为了照顾手改 settings.json 的极端情况）。
  */
 export function extractProfileFromSettings(name: string): Profile {
   const settings = readSettings();
@@ -174,20 +177,20 @@ export function extractProfileFromSettings(name: string): Profile {
   const token = env.ANTHROPIC_AUTH_TOKEN ?? env.ANTHROPIC_API_KEY ?? "";
   const endpoint = env.ANTHROPIC_BASE_URL ?? "";
 
-  const opusParsed = parseModel1m(env.ANTHROPIC_DEFAULT_OPUS_MODEL ?? "");
-  const sonnetParsed = parseModel1m(env.ANTHROPIC_DEFAULT_SONNET_MODEL ?? "");
-  const haikuParsed = parseModel1m(env.ANTHROPIC_DEFAULT_HAIKU_MODEL ?? "");
+  const modelRaw =
+    env.ANTHROPIC_DEFAULT_OPUS_MODEL ??
+    env.ANTHROPIC_MODEL ??
+    env.ANTHROPIC_DEFAULT_SONNET_MODEL ??
+    env.ANTHROPIC_DEFAULT_HAIKU_MODEL ??
+    "";
+  const modelParsed = parseModel1m(modelRaw);
 
   return {
     name,
     vendor: "",
     endpoint,
     token,
-    opus: opusParsed.name,
-    opus_1m: opusParsed.has1m,
-    sonnet: sonnetParsed.name,
-    sonnet_1m: sonnetParsed.has1m,
-    haiku: haikuParsed.name,
-    haiku_1m: haikuParsed.has1m,
+    model: modelParsed.name,
+    model_1m: modelParsed.has1m,
   };
 }

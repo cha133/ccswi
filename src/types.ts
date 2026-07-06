@@ -12,12 +12,8 @@ export interface Profile {
   vendor: string;     // 供应商名称（如 "DeepSeek"），空字符串表示无供应商
   endpoint: string;   // ANTHROPIC_BASE_URL
   token: string;      // ANTHROPIC_AUTH_TOKEN
-  opus: string;       // Opus 模型名（不含 [1m]）
-  opus_1m: boolean;   // 是否追加 [1m] 后缀
-  sonnet: string;     // Sonnet 模型名（不含 [1m]）
-  sonnet_1m: boolean; // 是否追加 [1m] 后缀
-  haiku: string;      // Haiku 模型名（不含 [1m]）
-  haiku_1m: boolean;  // 是否追加 [1m] 后缀
+  model: string;      // 模型名（不含 [1m]）
+  model_1m: boolean;  // 是否追加 [1m] 后缀
 }
 
 /** profiles.toml 的顶层结构 */
@@ -49,11 +45,7 @@ export function createEmptyProfile(name: string): Profile {
     vendor: "",
     endpoint: "",
     token: "",
-    opus: "",
-    opus_1m: false,
-    sonnet: "",
-    sonnet_1m: false,
-    haiku: "",
-    haiku_1m: false,
+    model: "",
+    model_1m: false,
   };
 }

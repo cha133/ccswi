@@ -67,9 +67,7 @@ export function formatProfileDetail(profile: Profile, index?: number): void {
   console.log(`${pc.dim("vendor:")}    ${profile.vendor || pc.dim("(none)")}`);
   console.log(`${pc.dim("endpoint:")}  ${profile.endpoint || pc.dim("(none)")}`);
   console.log(`${pc.dim("token:")}     ${profile.token ? maskToken(profile.token) : pc.dim("(none)")}`);
-  console.log(`${pc.dim("opus:")}      ${formatModelWith1m(profile.opus, profile.opus_1m)}`);
-  console.log(`${pc.dim("sonnet:")}    ${formatModelWith1m(profile.sonnet, profile.sonnet_1m)}`);
-  console.log(`${pc.dim("haiku:")}     ${formatModelWith1m(profile.haiku, profile.haiku_1m)}`);
+  console.log(`${pc.dim("model:")}     ${formatModelWith1m(profile.model, profile.model_1m)}`);
 }
 
 /**
