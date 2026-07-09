@@ -20,8 +20,8 @@ ccswi is a CLI for switching Codex `~/.Codex/settings.json` profiles. The core d
 
 ### Data Flow
 
-1. **Profiles** live in `~/.ccswi/profiles.toml` (TOML via `smol-toml`)
-2. **Common config** (non-provider settings) is cached in `~/.ccswi/common.json`
+1. **Profiles** live in `$XDG_CONFIG_HOME/ccswi/config.toml` (TOML via `smol-toml`)
+2. **Common config** (non-provider settings) is cached in `$XDG_CONFIG_HOME/ccswi/common.json`
 3. **Switch operation** (`src/core/switch.ts`): reads current `settings.json` → strips provider env vars → saves as common config → merges target profile → writes back to `settings.json`
 
 ### Key Files

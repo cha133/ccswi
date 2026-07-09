@@ -13,7 +13,12 @@ export function claudeJsonPath(): string {
   return join(homedir(), ".claude.json");
 }
 
-/** $XDG_CONFIG_HOME/ccswi/profiles.toml 路径 */
+/** $XDG_CONFIG_HOME/ccswi/config.toml 路径 */
+export function configTomlPath(): string {
+  return join(xdgConfigHome(), "ccswi", "config.toml");
+}
+
+/** @deprecated 旧配置文件名。v4.1.0+ 读取时会自动迁移到 config.toml。 */
 export function profilesTomlPath(): string {
   return join(xdgConfigHome(), "ccswi", "profiles.toml");
 }
@@ -33,7 +38,7 @@ export function ensureDir(dir: string): void {
   mkdirSync(dir, { recursive: true });
 }
 
-/** 确保 ccswi config 根目录存在（profiles.toml + common.json 所在） */
+/** 确保 ccswi config 根目录存在（config.toml + common.json 所在） */
 export function ensureCcswiConfigDir(): void {
   ensureDir(join(xdgConfigHome(), "ccswi"));
 }

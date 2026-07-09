@@ -71,14 +71,15 @@ ccswi tool clean-cache             # clear ccswi's model list cache, force fresh
 
 ## Profiles
 
-Profiles are stored in `$XDG_CONFIG_HOME/ccswi/profiles.toml`
-(default: `~/.config/ccswi/profiles.toml`, overridden by the `XDG_CONFIG_HOME`
+Profiles are stored in `$XDG_CONFIG_HOME/ccswi/config.toml`
+(default: `~/.config/ccswi/config.toml`, overridden by the `XDG_CONFIG_HOME`
 env var). The companion `common.json` lives in the same directory. The
 model list cache lives in `$XDG_CACHE_HOME/ccswi/models-cache.json`
 (default: `~/.cache/ccswi/models-cache.json`).
 
 When upgrading from a pre-XDG install (v2.x or earlier), ccswi auto-migrates
-`~/.ccswi/` → XDG layout on first run via a safe staging rename. Set
+`~/.ccswi/` → XDG layout on first run via a safe staging rename. Existing
+`profiles.toml` files are also renamed to `config.toml` on first run. Set
 `CCSWI_NO_MIGRATE=1` to skip (e.g. in tests).
 
 Each profile contains:

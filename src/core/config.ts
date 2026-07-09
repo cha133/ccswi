@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse, stringify } from "smol-toml";
 import type { ProfilesStore, Profile } from "../types";
-import { profilesTomlPath, ensureCcswiConfigDir } from "../utils/paths";
+import { configTomlPath, ensureCcswiConfigDir } from "../utils/paths";
 import { runStartupMigrations, CURRENT_VERSION } from "./migrate";
 
 /**
@@ -89,7 +89,7 @@ function migrateToUnifiedModel(store: ProfilesStore): boolean {
 const EMPTY_STORE: ProfilesStore = { active: null, profiles: {} };
 
 /**
- * 从 $XDG_CONFIG_HOME/ccswi/profiles.toml 加载所有 profile
+ * 从 $XDG_CONFIG_HOME/ccswi/config.toml 加载所有 profile
  * 如果文件不存在，返回空 store
  *
  * 启动早期会跑一次 schema migrations（v3.0.0+：从 ~/.ccswi/ 搬到 XDG）。
@@ -99,7 +99,7 @@ export function loadProfiles(): ProfilesStore {
   // 1. Schema migrations（XDG 搬移等）。幂等，跳过条件内置。
   runStartupMigrations();
 
-  const path = profilesTomlPath();
+  const path = configTomlPath();
   if (!existsSync(path)) {
     return structuredClone(EMPTY_STORE);
   }
@@ -109,7 +109,7 @@ export function loadProfiles(): ProfilesStore {
   try {
     data = parse(content) as unknown as ProfilesStore;
   } catch {
-    console.warn("⚠ profiles.toml 格式损坏，将按空配置处理");
+    console.warn("⚠ config.toml 格式损坏，将按空配置处理");
     return structuredClone(EMPTY_STORE);
   }
 
@@ -144,7 +144,7 @@ export function loadProfiles(): ProfilesStore {
 }
 
 /**
- * 保存 profiles 到 $XDG_CONFIG_HOME/ccswi/profiles.toml（原子写：tmp + rename）。
+ * 保存 profiles 到 $XDG_CONFIG_HOME/ccswi/config.toml（原子写：tmp + rename）。
  * 防御性：保证 ccswiVersion = CURRENT_VERSION……
  */
 export function saveProfiles(store: ProfilesStore): void {
@@ -152,7 +152,7 @@ export function saveProfiles(store: ProfilesStore): void {
   if ((store.ccswiVersion ?? 0) < CURRENT_VERSION) {
     store.ccswiVersion = CURRENT_VERSION;
   }
-  const path = profilesTomlPath();
+  const path = configTomlPath();
   const tmp = join(tmpdir(), `ccswi-profiles-${process.pid}-${Date.now()}.toml`);
   writeFileSync(tmp, stringify(store as unknown as Record<string, unknown>), "utf-8");
   renameSync(tmp, path);

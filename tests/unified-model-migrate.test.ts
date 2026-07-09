@@ -67,7 +67,7 @@ describe("migrateToUnifiedModel (opus/sonnet/haiku → model)", () => {
     expect((p as unknown as Record<string, unknown>).haiku_1m).toBeUndefined();
 
     // 落盘验证
-    profilesPath = join(root, "ccswi", "profiles.toml");
+    profilesPath = join(root, "ccswi", "config.toml");
     expect(existsSync(profilesPath)).toBe(true);
     const onDisk = parse(readFileSync(profilesPath, "utf-8")) as unknown as {
       profiles: Record<string, Record<string, unknown>>;

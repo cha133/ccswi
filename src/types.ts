@@ -16,14 +16,15 @@ export interface Profile {
   model_1m: boolean;  // 是否追加 [1m] 后缀
 }
 
-/** profiles.toml 的顶层结构 */
+/** config.toml 的顶层结构 */
 export interface ProfilesStore {
   /**
    * ccswi schema/layout 版本。v3.0.0 引入：
    * - 0 = 老 config（无字段）→ 自动跑 XDG 迁移 + bump 到 1
-   * - 1 = 当前 layout（$XDG_CONFIG_HOME/ccswi/profiles.toml +
+   * - 1 = XDG layout（$XDG_CONFIG_HOME/ccswi/profiles.toml +
    *             $XDG_CONFIG_HOME/ccswi/common.json +
    *             $XDG_CACHE_HOME/ccswi/models-cache.json）
+   * - 2 = profiles.toml 改名为 config.toml
    *
    * 跟 package.json version 无关。保留 3 个 ccswi 版本后（v6.0.0+）可删除本字段和迁移代码。
    */

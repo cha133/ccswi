@@ -2,7 +2,7 @@
 // XDG migration 测试
 // ----------------------------------------------------------------------------
 // 验证 ~/.ccswi/ → XDG layout 的搬移逻辑：
-//   - profiles.toml 从 ~/.ccswi/ 搬到 $XDG_CONFIG_HOME/ccswi/profiles.toml
+//   - profiles.toml 从 ~/.ccswi/ 搬到 $XDG_CONFIG_HOME/ccswi/config.toml
 //   - common.json 从 ~/.ccswi/ 搬到 $XDG_CONFIG_HOME/ccswi/common.json
 //   - models-cache.json 从 ~/.ccswi/ 搬到 $XDG_CACHE_HOME/ccswi/models-cache.json
 //   - 老 dir 在成功迁移后被删
@@ -26,7 +26,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse } from "smol-toml";
-import { migrateToXdg, CURRENT_VERSION } from "../src/core/migrate";
+import { migrateToXdg, migrateProfilesTomlToConfigToml, CURRENT_VERSION } from "../src/core/migrate";
 
 // 关掉 XDG migration（这文件就是测 migration 本身的，不能让它 auto-run）
 process.env.CCSWI_NO_MIGRATE = "1";
@@ -75,7 +75,7 @@ describe("migrateToXdg", () => {
     expect(existsSync(join(newCacheHome, "ccswi"))).toBe(false);
   });
 
-  test("profiles.toml 搬到 XDG_CONFIG_HOME/ccswi/", () => {
+  test("profiles.toml 搬到 XDG_CONFIG_HOME/ccswi/config.toml", () => {
     // Arrange: 老的 ~/.ccswi/profiles.toml
     const oldCcswi = join(oldHome, ".ccswi");
     mkdirSync(oldCcswi, { recursive: true });
@@ -98,7 +98,7 @@ haiku = "m3"
     migrateToXdg({ oldHome, newConfigHome, newCacheHome });
 
     // Assert
-    const newProfiles = join(newConfigHome, "ccswi", "profiles.toml");
+    const newProfiles = join(newConfigHome, "ccswi", "config.toml");
     expect(existsSync(newProfiles)).toBe(true);
     const data = parse(readFileSync(newProfiles, "utf-8")) as unknown as {
       active: string;
@@ -172,7 +172,7 @@ haiku = "m3"
     migrateToXdg({ oldHome, newConfigHome, newCacheHome });
 
     // Assert: 三者都搬了
-    expect(existsSync(join(newConfigHome, "ccswi", "profiles.toml"))).toBe(true);
+    expect(existsSync(join(newConfigHome, "ccswi", "config.toml"))).toBe(true);
     expect(existsSync(join(newConfigHome, "ccswi", "common.json"))).toBe(true);
     expect(existsSync(join(newCacheHome, "ccswi", "models-cache.json"))).toBe(true);
     expect(existsSync(oldCcswi)).toBe(false);
@@ -199,7 +199,7 @@ haiku = "m3"
 
     migrateToXdg({ oldHome, newConfigHome, newCacheHome });
 
-    const newContent = readFileSync(join(newConfigHome, "ccswi", "profiles.toml"), "utf-8");
+    const newContent = readFileSync(join(newConfigHome, "ccswi", "config.toml"), "utf-8");
     expect(newContent).toBe(content);
   });
 });
@@ -212,5 +212,37 @@ describe("runStartupMigrations invariants", () => {
 
   test("CURRENT_VERSION 必须 >= 1（保证 ccswiVersion 字段有值）", () => {
     expect(CURRENT_VERSION).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("migrateProfilesTomlToConfigToml", () => {
+  test("旧 XDG profiles.toml 自动改名为 config.toml", () => {
+    const dir = join(newConfigHome, "ccswi");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "profiles.toml"), `active = "p1"\n[profiles.p1]\nname = "p1"\n`);
+
+    migrateProfilesTomlToConfigToml({ configHome: newConfigHome });
+
+    expect(existsSync(join(dir, "profiles.toml"))).toBe(false);
+    expect(existsSync(join(dir, "config.toml"))).toBe(true);
+    const data = parse(readFileSync(join(dir, "config.toml"), "utf-8")) as unknown as {
+      active: string;
+    };
+    expect(data.active).toBe("p1");
+  });
+
+  test("config.toml 已存在时不覆盖", () => {
+    const dir = join(newConfigHome, "ccswi");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "profiles.toml"), `active = "old"\n[profiles.old]\nname = "old"\n`);
+    writeFileSync(join(dir, "config.toml"), `active = "new"\n[profiles.new]\nname = "new"\n`);
+
+    migrateProfilesTomlToConfigToml({ configHome: newConfigHome });
+
+    const data = parse(readFileSync(join(dir, "config.toml"), "utf-8")) as unknown as {
+      active: string;
+    };
+    expect(data.active).toBe("new");
+    expect(existsSync(join(dir, "profiles.toml"))).toBe(true);
   });
 });

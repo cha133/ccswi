@@ -22,10 +22,10 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 import { parse, stringify } from "smol-toml";
 import { xdgConfigHome, xdgCacheHome } from "../utils/xdg";
-import { profilesTomlPath, ensureCcswiConfigDir } from "../utils/paths";
+import { configTomlPath, ensureCcswiConfigDir } from "../utils/paths";
 
 /** 当前最大支持的 schema version。新 migration 加在 MIGRATIONS 末尾。 */
-export const CURRENT_VERSION = 1;
+export const CURRENT_VERSION = 2;
 
 interface Migration {
   version: number;
@@ -49,6 +49,10 @@ const MIGRATIONS: readonly Migration[] = [
         newCacheHome: xdgCacheHome(),
       }),
   },
+  {
+    version: 2,
+    run: () => migrateProfilesTomlToConfigToml({ configHome: xdgConfigHome() }),
+  },
 ] as const;
 
 /**
@@ -58,7 +62,7 @@ const MIGRATIONS: readonly Migration[] = [
  */
 export function runStartupMigrations(): void {
   if (shouldSkip()) return;
-  const configPath = profilesTomlPath();
+  const configPath = configTomlPath();
   const current = readCcswiVersionFromDisk(configPath);
   const target = CURRENT_VERSION;
   if (current >= target) return;
@@ -130,17 +134,18 @@ export function migrateToXdg(params: {
   }
 
   try {
-    // profiles.toml
+    // profiles.toml -> config.toml
     const oldProfiles = join(staging, "profiles.toml");
     if (existsSync(oldProfiles)) {
       const newDir = join(newConfigHome, "ccswi");
       mkdirSync(newDir, { recursive: true });
-      copyFileSync(oldProfiles, join(newDir, "profiles.toml"));
-      assertCopyMatches(oldProfiles, join(newDir, "profiles.toml"));
+      const newConfig = join(newDir, "config.toml");
+      copyFileSync(oldProfiles, newConfig);
+      assertCopyMatches(oldProfiles, newConfig);
       try {
-        parse(readFileSync(join(newDir, "profiles.toml"), "utf-8"));
+        parse(readFileSync(newConfig, "utf-8"));
       } catch (e) {
-        throw new Error(`migrated profiles.toml is not valid TOML: ${(e as Error).message}`);
+        throw new Error(`migrated config.toml is not valid TOML: ${(e as Error).message}`);
       }
     }
 
@@ -180,6 +185,24 @@ export function migrateToXdg(params: {
     console.error(`  staging copy preserved at ${staging} for manual recovery`);
     console.error(`  to retry: rm -rf ~/.ccswi && mv '${staging}' ~/.ccswi && restart ccswi`);
     // 把 staging 留作 rollback；不 re-throw，让 CLI 继续用空 config 跑
+  }
+}
+
+/**
+ * v4.1.0 临时兼容：把 XDG 配置文件从 profiles.toml 改名为 config.toml。
+ * 两周兼容期后可删除本函数 + MIGRATIONS v2 + 相关测试。
+ */
+export function migrateProfilesTomlToConfigToml(params: { configHome: string }): void {
+  const dir = join(params.configHome, "ccswi");
+  const oldPath = join(dir, "profiles.toml");
+  const newPath = join(dir, "config.toml");
+
+  if (!existsSync(oldPath) || existsSync(newPath)) return;
+  renameSync(oldPath, newPath);
+  try {
+    parse(readFileSync(newPath, "utf-8"));
+  } catch (e) {
+    throw new Error(`migrated config.toml is not valid TOML: ${(e as Error).message}`);
   }
 }
 

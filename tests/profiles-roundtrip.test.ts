@@ -21,7 +21,7 @@ afterEach(() => {
   rmSync(root, { recursive: true, force: true });
 });
 
-describe("profiles.toml round-trip", () => {
+describe("config.toml round-trip", () => {
   test("basic profile save → load preserves all fields", () => {
     saveProfiles({
       ccswiVersion: 1,
@@ -39,7 +39,7 @@ describe("profiles.toml round-trip", () => {
     });
     const loaded = loadProfiles();
     expect(loaded.active).toBe("minimax");
-    expect(loaded.ccswiVersion).toBe(1);
+    expect(loaded.ccswiVersion).toBe(2);
     const p = loaded.profiles.minimax!;
     expect(p.vendor).toBe("Minimax");
     expect(p.endpoint).toBe("https://api.example.com");
@@ -87,14 +87,14 @@ describe("profiles.toml round-trip", () => {
 
   test("active: null becomes key-absent on disk and null on load", () => {
     saveProfiles({ active: null, profiles: {} });
-    const raw = readFileSync(join(root, "ccswi", "profiles.toml"), "utf-8");
+    const raw = readFileSync(join(root, "ccswi", "config.toml"), "utf-8");
     expect(raw).not.toMatch(/^active\s*=/m);
     expect(loadProfiles().active).toBeNull();
   });
 
   test("stringify emits a trailing newline", () => {
     saveProfiles({ active: null, profiles: {} });
-    const raw = readFileSync(join(root, "ccswi", "profiles.toml"), "utf-8");
+    const raw = readFileSync(join(root, "ccswi", "config.toml"), "utf-8");
     expect(raw.endsWith("\n")).toBe(true);
   });
 });
