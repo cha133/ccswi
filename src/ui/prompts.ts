@@ -63,7 +63,7 @@ async function promptVendor(): Promise<ProviderPreset> {
  * 如果 priorModel 非空且不在 models 列表中，则将其前置。
  * 用于"上一档用了自定义模型名"的场景：让下一档 autocomplete 能 pre-select。
  */
-function maybePrependCustomModel(
+export function ensureDefaultModelOption(
   models: string[] | null,
   priorModel: string | undefined,
 ): string[] | null {
@@ -96,6 +96,11 @@ export async function promptModel(
     );
   }
 
+  // `autocomplete.initialUserInput` only fills the search box; it does not make
+  // an unknown value selectable. Keep an existing custom model as a real option
+  // so pressing Enter can reliably retain it.
+  const selectableModels = ensureDefaultModelOption(models, defaultValue)!;
+
   const CUSTOM = "__ccswi_custom__";
 
   const topOptions: { value: string; label: string }[] = [
@@ -104,7 +109,7 @@ export async function promptModel(
 
   const allOptions = [
     ...topOptions,
-    ...models.map((name) => ({ value: name, label: name })),
+    ...selectableModels.map((name) => ({ value: name, label: name })),
   ];
 
   // 判断 defaultValue 是否在选项列表中（以便预选中）
@@ -118,7 +123,12 @@ export async function promptModel(
       message,
       options: allOptions,
       initialValue: hasInOptions ? defaultValue : undefined,
-      initialUserInput: !hasInOptions && defaultValue ? defaultValue : undefined,
+      validate: (value: string | string[] | undefined) => {
+        if (typeof value !== "string" || !value.trim()) {
+          return "Model is required.";
+        }
+        return undefined;
+      },
       filter: (search: string, option: { value: string; label?: string }) => {
         // 特殊选项只在无搜索时显示
         if (option.value === CUSTOM) return !search;
@@ -136,6 +146,13 @@ export async function promptModel(
         placeholder: "e.g. claude-sonnet-4-6, deepseek-v4-pro",
       }),
     );
+  }
+
+  // Be defensive against prompt-library regressions: never let an undefined
+  // selection travel downstream to callers that expect a model string.
+  if (typeof result !== "string" || !result.trim()) {
+    if (defaultValue?.trim()) return defaultValue.trim();
+    throw new Error("Model is required.");
   }
 
   return result;
